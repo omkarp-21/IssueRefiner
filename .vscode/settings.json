@@ -1,0 +1,14 @@
+{
+  "sqltools.connections": [
+    {
+      "ssh": "Disabled",
+      "previewLimit": 50,
+      "server": "localhost",
+      "port": 5432,
+      "driver": "PostgreSQL",
+      "name": "issue_refiner",
+      "database": "issue_refiner",
+      "username": "postgres"
+    }
+  ]
+}
