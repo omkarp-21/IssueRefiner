@@ -3,8 +3,10 @@ package main
 import (
 	"context"
 	"fmt"
+	"issue-refiner/internal/auth"
 	"issue-refiner/internal/config"
 	"issue-refiner/internal/database"
+	"issue-refiner/internal/github"
 	"issue-refiner/internal/health"
 	"log"
 	"net/http"
@@ -44,9 +46,12 @@ func main() {
 	log.Println("✓ Database Connected")
 
 	router := gin.Default()
+	githubOAuth := github.NewOAuth(cfg.GitHub)
+	authHandler := auth.NewHandler(&githubOAuth)
 
 	// Register Routes
 	health.RegisterRoutes(router)
+	authHandler.RegisterRoutes(router)
 
 	server := &http.Server{
 		Addr:    fmt.Sprintf("%s:%d", cfg.Server.ServerHost, cfg.Server.ServerPort),

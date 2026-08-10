@@ -20,9 +20,16 @@ type DatabaseConfig struct {
 	DatabaseSSLMode  string
 }
 
+type GitHubConfig struct {
+	GitHubClientID     string
+	GitHubClientSecret string
+	GitHubCallbackURL  string
+}
+
 type Config struct {
 	Server   ServerConfig
 	Database DatabaseConfig
+	GitHub   GitHubConfig
 }
 
 func getEnvOrDefault(key, defaultValue string) string {
@@ -62,6 +69,25 @@ func LoadFromEnv() (*Config, error) {
 	}
 	cfg.Database.DatabaseName = dbName
 	cfg.Database.DatabaseSSLMode = getEnvOrDefault("DB_SSLMODE", "disable")
+
+	//GitHub
+	githubClientID := os.Getenv("GITHUB_CLIENT_ID")
+	if githubClientID == "" {
+		return nil, fmt.Errorf("Unable to find GitHub Client ID")
+	}
+	cfg.GitHub.GitHubClientID = githubClientID
+
+	githubClientSecret := os.Getenv("GITHUB_CLIENT_SECRET")
+	if githubClientSecret == "" {
+		return nil, fmt.Errorf("Unable to find GitHub Client Secret")
+	}
+	cfg.GitHub.GitHubClientSecret = githubClientSecret
+
+	githubCallbackURL := os.Getenv("GITHUB_CALLBACK_URL")
+	if githubCallbackURL == "" {
+		return nil, fmt.Errorf("Unable to find GitHub Callback URL")
+	}
+	cfg.GitHub.GitHubCallbackURL = githubCallbackURL
 
 	return cfg, nil
 }
