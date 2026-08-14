@@ -1,0 +1,79 @@
+# ------------------------------------------------------------------------------
+# Go Binaries & Build Outputs
+# ------------------------------------------------------------------------------
+# Compiled binaries
+*.exe
+*.exe;
+*.dll
+*.so
+*.dylib
+
+# Executables created by `go build` in the root or vendor
+bin/
+dist/
+/main
+/app
+
+# Test binary produced by `go test -c`
+*.test
+
+# Output of `go test -coverprofile`
+*.out
+*.cover
+*.prof
+
+# ------------------------------------------------------------------------------
+# Dependencies & Tooling
+# ------------------------------------------------------------------------------
+# Ignore vendor directory by default unless vendor locking is strictly required
+# vendor/
+
+# Go workspaces context
+go.work
+go.work.sum
+
+# ------------------------------------------------------------------------------
+# Environment Variables & Local Configs
+# ------------------------------------------------------------------------------
+*.env
+*.env.local
+*.env.development
+*.env.production
+!.env.example
+
+# Database files & local data stores
+*.db
+*.sqlite
+*.sqlite3
+
+# ------------------------------------------------------------------------------
+# IDE & Editor Configurations
+# ------------------------------------------------------------------------------
+# VS Code
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# GoLand / IntelliJ
+.idea/
+*.iml
+*.iws
+
+# Vim
+*~
+*.swp
+*.swo
+
+# ------------------------------------------------------------------------------
+# OS-Generated Files
+# ------------------------------------------------------------------------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
