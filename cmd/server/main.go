@@ -8,6 +8,7 @@ import (
 	"issue-refiner/internal/database"
 	"issue-refiner/internal/github"
 	"issue-refiner/internal/health"
+	"issue-refiner/internal/users"
 	"log"
 	"net/http"
 	"time"
@@ -46,8 +47,14 @@ func main() {
 	log.Println("✓ Database Connected")
 
 	router := gin.Default()
+
+	// Dependencies
+	userRepository := users.NewUserRepository(dbPool)
+	userService := users.NewUserService(&userRepository)
+
 	githubOAuth := github.NewOAuth(cfg.GitHub)
-	authHandler := auth.NewHandler(&githubOAuth)
+	authService := auth.NewAuthService(&githubOAuth, &userService)
+	authHandler := auth.NewAuthHandler(&authService)
 
 	// Register Routes
 	health.RegisterRoutes(router)
