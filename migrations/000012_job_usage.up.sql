@@ -1,0 +1,2 @@
+ALTER TABLE jobs ADD COLUMN input_tokens INT NULL;
+ALTER TABLE jobs ADD COLUMN output_tokens INT NULL;

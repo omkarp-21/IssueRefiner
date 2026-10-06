@@ -1,6 +1,7 @@
 package config
 
 import (
+	"encoding/hex"
 	"fmt"
 	"os"
 	"strconv"
@@ -26,10 +27,22 @@ type GitHubConfig struct {
 	GitHubCallbackURL  string
 }
 
+type WorkerConfig struct {
+	WorkerCount       int
+	QueueSize         int
+	JobTimeoutSeconds int
+}
+
+type SecurityConfig struct {
+	CredentialKey [32]byte
+}
+
 type Config struct {
 	Server   ServerConfig
 	Database DatabaseConfig
 	GitHub   GitHubConfig
+	Worker   WorkerConfig
+	Security SecurityConfig
 }
 
 func getEnvOrDefault(key, defaultValue string) string {
@@ -88,6 +101,44 @@ func LoadFromEnv() (*Config, error) {
 		return nil, fmt.Errorf("Unable to find GitHub Callback URL")
 	}
 	cfg.GitHub.GitHubCallbackURL = githubCallbackURL
+
+	// Worker
+	workerCount, err := strconv.Atoi(getEnvOrDefault("WORKER_COUNT", "3"))
+	if err != nil {
+		return nil, fmt.Errorf("invalid WORKER_COUNT: %w", err)
+	}
+	if workerCount <= 0 {
+		return nil, fmt.Errorf("invalid WORKER_COUNT: must be positive")
+	}
+	cfg.Worker.WorkerCount = workerCount
+
+	queueSize, err := strconv.Atoi(getEnvOrDefault("WORKER_QUEUE_SIZE", "32"))
+	if err != nil {
+		return nil, fmt.Errorf("invalid WORKER_QUEUE_SIZE: %w", err)
+	}
+	if queueSize <= 0 {
+		return nil, fmt.Errorf("invalid WORKER_QUEUE_SIZE: must be positive")
+	}
+	cfg.Worker.QueueSize = queueSize
+
+	jobTimeout, err := strconv.Atoi(getEnvOrDefault("JOB_TIMEOUT_SECONDS", "30"))
+	if err != nil {
+		return nil, fmt.Errorf("invalid JOB_TIMEOUT_SECONDS: %w", err)
+	}
+	if jobTimeout <= 0 {
+		return nil, fmt.Errorf("invalid JOB_TIMEOUT_SECONDS: must be positive")
+	}
+	cfg.Worker.JobTimeoutSeconds = jobTimeout
+
+	// Security
+	credentialKey, err := hex.DecodeString(os.Getenv("CREDENTIAL_KEY"))
+	if err != nil {
+		return nil, fmt.Errorf("invalid CREDENTIAL_KEY: %w", err)
+	}
+	if len(credentialKey) != 32 {
+		return nil, fmt.Errorf("invalid CREDENTIAL_KEY: must be 64 hex characters")
+	}
+	copy(cfg.Security.CredentialKey[:], credentialKey)
 
 	return cfg, nil
 }
