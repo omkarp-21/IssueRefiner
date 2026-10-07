@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"issue-refiner/internal/investigation"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -341,6 +342,19 @@ func TestMockInvestigateModelsSupported(t *testing.T) {
 		}
 		if err := provider.ValidateCredentials(context.Background(), "", model); err != nil {
 			t.Fatalf("expected %q to validate, got %v", model, err)
+		}
+	}
+}
+
+func TestMockInvestigateOutputsParse(t *testing.T) {
+	provider := NewMockProvider()
+	for _, model := range []string{"mock-investigate-ready", "mock-investigate-needs-info"} {
+		result, err := provider.Generate(context.Background(), "", model, testInput())
+		if err != nil {
+			t.Fatalf("%s: unexpected error %v", model, err)
+		}
+		if _, err := investigation.ParseResult(result.Text); err != nil {
+			t.Fatalf("%s: canned output must parse, got %v", model, err)
 		}
 	}
 }

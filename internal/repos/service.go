@@ -19,6 +19,7 @@ var (
 type GitHubClient interface {
 	GetRepository(ctx context.Context, token string, owner string, repo string) (*github.Repository, error)
 	GetIssue(ctx context.Context, token string, owner string, repo string, issueNumber int) (*github.Issue, error)
+	ListIssueComments(ctx context.Context, token string, owner string, repo string, issueNumber int) ([]github.IssueComment, error)
 	ListContributors(ctx context.Context, token string, owner string, repo string, page int, perPage int) ([]github.Contributor, error)
 	ListIssues(ctx context.Context, token string, owner string, repo string, state string, page int, perPage int) ([]github.Issue, error)
 }
@@ -152,4 +153,23 @@ func (repositoryService *RepositoryService) GetIssue(ctx context.Context, organi
 		return nil, fmt.Errorf("%w: %w", ErrGitHubUpstream, err)
 	}
 	return issue, nil
+}
+
+func (repositoryService *RepositoryService) GetIssueComments(ctx context.Context, organizationID uuid.UUID, userID uuid.UUID, id uuid.UUID, issueNumber int) ([]github.IssueComment, error) {
+	if issueNumber <= 0 {
+		return nil, fmt.Errorf("%w: issue number is required", ErrInvalidRepo)
+	}
+	repository, err := repositoryService.GetRepo(ctx, organizationID, id)
+	if err != nil {
+		return nil, err
+	}
+	token, err := repositoryService.Tokens.Get(ctx, userID)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %w", ErrGitHubToken, err)
+	}
+	comments, err := repositoryService.GitHub.ListIssueComments(ctx, token, repository.Owner, repository.Name, issueNumber)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %w", ErrGitHubUpstream, err)
+	}
+	return comments, nil
 }

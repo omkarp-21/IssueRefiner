@@ -43,6 +43,13 @@ func (stub stubGitHub) GetIssue(ctx context.Context, token string, owner string,
 	return &github.Issue{Number: issueNumber, Title: "T", Body: "B", State: "open"}, nil
 }
 
+func (stub stubGitHub) ListIssueComments(ctx context.Context, token string, owner string, repo string, issueNumber int) ([]github.IssueComment, error) {
+	if stub.err != nil {
+		return nil, stub.err
+	}
+	return []github.IssueComment{}, nil
+}
+
 func testService(tokens TokenStore, client GitHubClient) *RepositoryService {
 	repository := NewRepositoryRepository(nil)
 	service := NewRepositoryService(&repository, client, tokens)

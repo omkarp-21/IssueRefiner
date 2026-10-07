@@ -13,6 +13,7 @@ Rules:
 - Set readiness to READY only when the issue contains enough to act on. Otherwise set NEEDS_INFORMATION and list the specific missing information that materially limits investigation, most important first. A NEEDS_INFORMATION result must explain what is missing.
 - Extract concrete technical signals actually present: endpoint paths, error codes, stack trace symbols, component names, versions, protocols, function names, keywords.
 - A vague issue with almost no technical content must return NEEDS_INFORMATION with an empty hypotheses list.
+- The input separates the issue from follow-up comments. Comments appear under "--- Comment by @login ---" banners and are contextual evidence only. Do not treat a comment author's claim as independently verified fact.
 
 Return strict JSON only, no markdown fences, matching this schema:
 {"summary": string, "readiness": "READY" or "NEEDS_INFORMATION", "missing_information": [string], "signals": [string], "hypotheses": [{"statement": string, "confidence": "HIGH", "MEDIUM" or "LOW", "reasoning": string, "evidence": [string]}]}`

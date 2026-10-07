@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 )
@@ -120,5 +121,57 @@ func TestClientTimeout(t *testing.T) {
 	_, err := client.GetRepository(context.Background(), "token", "o", "r")
 	if err == nil {
 		t.Fatalf("expected timeout error")
+	}
+}
+
+func TestListIssueComments(t *testing.T) {
+	var path string
+	var query string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		path = r.URL.Path
+		query = r.URL.RawQuery
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(`[{"id":9001,"body":" Reproduced on main ","created_at":"2024-01-03T00:00:00Z","user":{"login":"alice"}},{"id":9002,"body":"Same here","created_at":"2024-01-04T00:00:00Z","user":{"login":"bob"}}]`))
+	}))
+	defer server.Close()
+	client := NewClient(server.URL)
+	comments, err := client.ListIssueComments(context.Background(), "token", "o", "r", 421)
+	if err != nil {
+		t.Fatalf("expected no error, got %v", err)
+	}
+	if path != "/repos/o/r/issues/421/comments" {
+		t.Fatalf("unexpected path %q", path)
+	}
+	for _, want := range []string{"per_page=10", "sort=created", "direction=asc"} {
+		if !strings.Contains(query, want) {
+			t.Fatalf("expected query %q in %q", want, query)
+		}
+	}
+	if len(comments) != 2 || comments[0].ID != 9001 || comments[0].Author != "alice" || comments[0].Body != " Reproduced on main " {
+		t.Fatalf("unexpected comments: %+v", comments)
+	}
+	if comments[1].Author != "bob" {
+		t.Fatalf("unexpected comments: %+v", comments)
+	}
+}
+
+func TestListIssueCommentsErrors(t *testing.T) {
+	cases := []struct {
+		name   string
+		status int
+		want   error
+	}{
+		{"not found", http.StatusNotFound, ErrNotFound},
+		{"rate limited", http.StatusTooManyRequests, ErrRateLimited},
+		{"server", http.StatusInternalServerError, ErrGitHubServer},
+	}
+	for _, tc := range cases {
+		server := testServer(`{}`, tc.status, nil)
+		client := NewClient(server.URL)
+		_, err := client.ListIssueComments(context.Background(), "token", "o", "r", 421)
+		server.Close()
+		if !errors.Is(err, tc.want) {
+			t.Fatalf("%s: expected %v, got %v", tc.name, tc.want, err)
+		}
 	}
 }

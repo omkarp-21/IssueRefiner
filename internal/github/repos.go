@@ -47,6 +47,13 @@ type Issue struct {
 	HTMLURL   string
 }
 
+type IssueComment struct {
+	ID        int64
+	Author    string
+	Body      string
+	CreatedAt time.Time
+}
+
 type repositoryResponse struct {
 	ID            int64  `json:"id"`
 	Name          string `json:"name"`
@@ -75,6 +82,15 @@ type issueResponse struct {
 		URL string `json:"url"`
 	} `json:"pull_request"`
 	User struct {
+		Login string `json:"login"`
+	} `json:"user"`
+}
+
+type issueCommentResponse struct {
+	ID        int64     `json:"id"`
+	Body      string    `json:"body"`
+	CreatedAt time.Time `json:"created_at"`
+	User      struct {
 		Login string `json:"login"`
 	} `json:"user"`
 }
@@ -177,6 +193,28 @@ func (client *Client) GetIssue(ctx context.Context, token string, owner string, 
 		UpdatedAt: raw.UpdatedAt,
 		HTMLURL:   raw.HTMLURL,
 	}, nil
+}
+
+func (client *Client) ListIssueComments(ctx context.Context, token string, owner string, repo string, issueNumber int) ([]IssueComment, error) {
+	var raw []issueCommentResponse
+	err := client.get(ctx, token, "/repos/"+owner+"/"+repo+"/issues/"+strconv.Itoa(issueNumber)+"/comments", map[string]string{
+		"per_page":  "10",
+		"sort":      "created",
+		"direction": "asc",
+	}, &raw)
+	if err != nil {
+		return nil, err
+	}
+	comments := make([]IssueComment, 0, len(raw))
+	for _, item := range raw {
+		comments = append(comments, IssueComment{
+			ID:        item.ID,
+			Author:    item.User.Login,
+			Body:      item.Body,
+			CreatedAt: item.CreatedAt,
+		})
+	}
+	return comments, nil
 }
 
 func (client *Client) get(ctx context.Context, token string, path string, query map[string]string, out any) error {

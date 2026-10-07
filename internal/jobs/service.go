@@ -129,7 +129,23 @@ func (jobService *JobService) EnqueueInvestigation(ctx context.Context, organiza
 	if err := ValidateInputSize(issue.Title, issue.Body); err != nil {
 		return nil, err
 	}
-	return jobService.JobRepository.Create(ctx, organizationID, repositoryID, config.ID, config.ProviderType, model, createdBy, KindInvestigate, issue.Number, issue.Title, issue.Body)
+	comments, err := jobService.Repositories.GetIssueComments(ctx, organizationID, createdBy, repositoryID, issueNumber)
+	if err != nil {
+		return nil, err
+	}
+	evidence := make([]investigation.EvidenceItem, 0, len(comments))
+	for _, comment := range comments {
+		evidence = append(evidence, investigation.EvidenceItem{
+			Source: investigation.SourceComment,
+			Author: comment.Author,
+			Body:   comment.Body,
+		})
+	}
+	body := investigation.BuildBody(issue.Body, evidence)
+	if err := ValidateInputSize(issue.Title, body); err != nil {
+		return nil, err
+	}
+	return jobService.JobRepository.Create(ctx, organizationID, repositoryID, config.ID, config.ProviderType, model, createdBy, KindInvestigate, issue.Number, issue.Title, body)
 }
 
 func (jobService *JobService) FailJob(ctx context.Context, id uuid.UUID, errMsg string) (*Job, error) {

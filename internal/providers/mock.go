@@ -53,9 +53,9 @@ func (mock MockProvider) Generate(ctx context.Context, apiKey string, model stri
 	case "mock-unavailable":
 		return Result{}, NewProviderError(ErrProviderUnavailable, fmt.Errorf("mock unavailable"))
 	case "mock-investigate-ready":
-		return Result{Text: `{"summary":"Connection pool exhaustion under load","readiness":"READY","missing_information":[],"signals":["pq: too many clients already","pool size 5"],"hypotheses":[{"statement":"Pool is undersized for peak concurrency","confidence":"MEDIUM","reasoning":"Error appears only under load","evidence":["pq: too many clients already"]}]`}, nil
+		return Result{Text: `{"summary":"Connection pool exhaustion under load","readiness":"READY","missing_information":[],"signals":["pq: too many clients already","pool size 5"],"hypotheses":[{"statement":"Pool is undersized for peak concurrency","confidence":"MEDIUM","reasoning":"Error appears only under load","evidence":["pq: too many clients already"]}]}`}, nil
 	case "mock-investigate-needs-info":
-		return Result{Text: `{"summary":"Something is broken","readiness":"NEEDS_INFORMATION","missing_information":["reproduction steps","expected behavior"],"signals":[],"hypotheses":[]`}, nil
+		return Result{Text: `{"summary":"Something is broken","readiness":"NEEDS_INFORMATION","missing_information":["reproduction steps","expected behavior"],"signals":[],"hypotheses":[]}`}, nil
 	case "mock-investigate-malformed":
 		return Result{Text: `not json{{{`}, nil
 	case "mock-slow":
