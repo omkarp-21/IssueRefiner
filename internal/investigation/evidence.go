@@ -2,6 +2,7 @@ package investigation
 
 import (
 	"fmt"
+	"strings"
 	"unicode/utf8"
 )
 
@@ -17,6 +18,7 @@ const (
 )
 
 type EvidenceItem struct {
+	ID     int64
 	Source string
 	Author string
 	Body   string
@@ -41,7 +43,7 @@ func BuildBody(body string, comments []EvidenceItem) string {
 		if count >= MaxComments {
 			break
 		}
-		banner := fmt.Sprintf("\n--- Comment by @%s ---\n", comment.Author)
+		banner := fmt.Sprintf("\n--- Comment by @%s (%s) ---\n", comment.Author, ReferenceID(SourceComment, comment.ID))
 		if len(banner) >= remaining {
 			break
 		}
@@ -55,4 +57,30 @@ func BuildBody(body string, comments []EvidenceItem) string {
 		count++
 	}
 	return rendered
+}
+
+func ReferenceID(kind string, id int64) string {
+	return fmt.Sprintf("%s:%d", kind, id)
+}
+
+func EvidenceIDs(rendered string) map[string]bool {
+	ids := map[string]bool{SourceIssue: true}
+	rest := rendered
+	for {
+		start := strings.Index(rest, "(comment:")
+		if start < 0 {
+			break
+		}
+		rest = rest[start+len("(comment:"):]
+		end := strings.Index(rest, ")")
+		if end < 0 {
+			break
+		}
+		id := rest[:end]
+		if id != "" {
+			ids["comment:"+id] = true
+		}
+		rest = rest[end+1:]
+	}
+	return ids
 }

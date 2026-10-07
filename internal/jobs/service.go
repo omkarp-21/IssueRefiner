@@ -136,6 +136,7 @@ func (jobService *JobService) EnqueueInvestigation(ctx context.Context, organiza
 	evidence := make([]investigation.EvidenceItem, 0, len(comments))
 	for _, comment := range comments {
 		evidence = append(evidence, investigation.EvidenceItem{
+			ID:     comment.ID,
 			Source: investigation.SourceComment,
 			Author: comment.Author,
 			Body:   comment.Body,
@@ -206,6 +207,9 @@ func (jobService *JobService) ProcessJob(ctx context.Context, id uuid.UUID) erro
 		investigationResult, err := investigation.ParseResult(generated.Text)
 		if err != nil {
 			return fail("provider returned invalid investigation output", err)
+		}
+		if err := investigation.ValidateGrounding(investigationResult, investigation.EvidenceIDs(job.InputBody)); err != nil {
+			return fail("provider returned ungrounded investigation output", err)
 		}
 		text, err = investigation.MarshalResult(investigationResult)
 		if err != nil {

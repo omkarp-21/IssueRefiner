@@ -7,7 +7,7 @@ import (
 
 func TestSystemPromptRules(t *testing.T) {
 	prompt := SystemPrompt()
-	for _, want := range []string{"Do NOT invent", "NEEDS_INFORMATION", "READY", "HIGH", "missing_information", "hypotheses", "evidence"} {
+	for _, want := range []string{"Do NOT invent", "NEEDS_INFORMATION", "READY", "HIGH", "missing_information", "hypotheses", "evidence", "observed_behavior", "expected_behavior", "reproduction_steps", "environment"} {
 		if !strings.Contains(prompt, want) {
 			t.Fatalf("system prompt missing %q", want)
 		}

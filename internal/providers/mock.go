@@ -8,7 +8,7 @@ import (
 
 const MockDefaultModel = "mock-test"
 
-var mockModels = []string{"mock-test", "mock-slow", "mock-quota", "mock-rate", "mock-invalid", "mock-unavailable", "mock-investigate-ready", "mock-investigate-needs-info", "mock-investigate-malformed"}
+var mockModels = []string{"mock-test", "mock-slow", "mock-quota", "mock-rate", "mock-invalid", "mock-unavailable", "mock-investigate-ready", "mock-investigate-needs-info", "mock-investigate-malformed", "mock-investigate-ungrounded"}
 
 type MockProvider struct{}
 
@@ -53,11 +53,13 @@ func (mock MockProvider) Generate(ctx context.Context, apiKey string, model stri
 	case "mock-unavailable":
 		return Result{}, NewProviderError(ErrProviderUnavailable, fmt.Errorf("mock unavailable"))
 	case "mock-investigate-ready":
-		return Result{Text: `{"summary":"Connection pool exhaustion under load","readiness":"READY","missing_information":[],"signals":["pq: too many clients already","pool size 5"],"hypotheses":[{"statement":"Pool is undersized for peak concurrency","confidence":"MEDIUM","reasoning":"Error appears only under load","evidence":["pq: too many clients already"]}]}`}, nil
+		return Result{Text: `{"summary":"Connection pool exhaustion under load","readiness":"READY","missing_information":[],"signals":["pq: too many clients already","pool size 5"],"observed_behavior":"Pool errors under concurrent load","expected_behavior":"Pool handles peak concurrency","reproduction_steps":["run load test"],"environment":"Go 1.22, pool size 5","hypotheses":[{"statement":"Pool is undersized for peak concurrency","confidence":"MEDIUM","reasoning":"Error appears only under load","evidence":["issue"]}]}`}, nil
 	case "mock-investigate-needs-info":
-		return Result{Text: `{"summary":"Something is broken","readiness":"NEEDS_INFORMATION","missing_information":["reproduction steps","expected behavior"],"signals":[],"hypotheses":[]}`}, nil
+		return Result{Text: `{"summary":"Something is broken","readiness":"NEEDS_INFORMATION","missing_information":["reproduction steps","expected behavior"],"signals":[],"observed_behavior":"","expected_behavior":"","reproduction_steps":[],"environment":"","hypotheses":[]}`}, nil
 	case "mock-investigate-malformed":
 		return Result{Text: `not json{{{`}, nil
+	case "mock-investigate-ungrounded":
+		return Result{Text: `{"summary":"Pool exhaustion","readiness":"READY","missing_information":[],"signals":["x"],"hypotheses":[{"statement":"Bad code","confidence":"HIGH","reasoning":"r","evidence":["file:core/mcp.py:123"]}]}`}, nil
 	case "mock-slow":
 		select {
 		case <-time.After(2 * time.Second):

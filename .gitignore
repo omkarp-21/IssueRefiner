@@ -80,3 +80,8 @@ go.work.sum
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Agent Files
+skills/
+AGENTS.md
+.opencode/
