@@ -103,6 +103,52 @@ func (jobRepository *JobRepository) FindByID(ctx context.Context, id uuid.UUID) 
 	return &job, nil
 }
 
+func (jobRepository *JobRepository) ListForIssue(ctx context.Context, organizationID uuid.UUID, repositoryID uuid.UUID, issueNumber int) ([]Job, error) {
+	rows, err := jobRepository.dbPool.Query(
+		ctx,
+		"SELECT "+jobColumns+" FROM jobs WHERE organization_id=$1 AND repository_id=$2 AND issue_number=$3 AND kind=$4 ORDER BY created_at DESC",
+		organizationID,
+		repositoryID,
+		issueNumber,
+		KindInvestigate,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %w", ErrFindJob, err)
+	}
+	defer rows.Close()
+	investigations := []Job{}
+	for rows.Next() {
+		var job Job
+		if err := rows.Scan(&job.ID,
+			&job.OrganizationID,
+			&job.RepositoryID,
+			&job.ProviderConfigID,
+			&job.ProviderType,
+			&job.Model,
+			&job.CreatedBy,
+			&job.Kind,
+			&job.IssueNumber,
+			&job.Status,
+			&job.InputTitle,
+			&job.InputBody,
+			&job.Result,
+			&job.Error,
+			&job.InputTokens,
+			&job.OutputTokens,
+			&job.Attempts,
+			&job.CreatedAt,
+			&job.UpdatedAt,
+		); err != nil {
+			return nil, fmt.Errorf("%w: %w", ErrFindJob, err)
+		}
+		investigations = append(investigations, job)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("%w: %w", ErrFindJob, err)
+	}
+	return investigations, nil
+}
+
 func (jobRepository *JobRepository) MarkDone(ctx context.Context, id uuid.UUID, result string, inputTokens *int, outputTokens *int) (*Job, error) {
 	var job Job
 	err := jobRepository.dbPool.QueryRow(

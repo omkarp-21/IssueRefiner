@@ -14,8 +14,9 @@ import (
 )
 
 var (
-	ErrInvalidInput = errors.New("invalid refine input")
-	ErrRefineFailed = errors.New("refinement failed")
+	ErrInvalidInput           = errors.New("invalid refine input")
+	ErrRefineFailed           = errors.New("refinement failed")
+	ErrInvalidReinvestigation = errors.New("investigation cannot be reinvestigated")
 )
 
 // MaxIssueBytes bounds the total GitHub issue content sent to a provider
@@ -253,4 +254,48 @@ func (jobService *JobService) GetForOrg(ctx context.Context, organizationID uuid
 		return nil, nil, err
 	}
 	return job, repository, nil
+}
+
+func (jobService *JobService) ListInvestigations(ctx context.Context, organizationID uuid.UUID, repositoryID uuid.UUID, issueNumber int) ([]Job, error) {
+	if issueNumber <= 0 {
+		return nil, fmt.Errorf("%w: issue number is required", ErrInvalidInput)
+	}
+	if _, err := jobService.Repositories.GetRepo(ctx, organizationID, repositoryID); err != nil {
+		return nil, err
+	}
+	return jobService.JobRepository.ListForIssue(ctx, organizationID, repositoryID, issueNumber)
+}
+
+func validateReinvestigateSource(job *Job, organizationID uuid.UUID, repositoryID uuid.UUID, issueNumber int) error {
+	if job.Kind != KindInvestigate {
+		return fmt.Errorf("%w", ErrInvalidReinvestigation)
+	}
+	if job.RepositoryID == nil || *job.RepositoryID != repositoryID {
+		return fmt.Errorf("%w", ErrInvalidReinvestigation)
+	}
+	if job.OrganizationID != organizationID || job.IssueNumber != issueNumber {
+		return fmt.Errorf("%w", ErrInvalidReinvestigation)
+	}
+	if job.Status != StatusDone || job.Result == nil {
+		return fmt.Errorf("%w", ErrInvalidReinvestigation)
+	}
+	result, err := investigation.ParseResult(*job.Result)
+	if err != nil {
+		return fmt.Errorf("%w", ErrInvalidReinvestigation)
+	}
+	if result.Readiness != investigation.ReadinessNeedsInfo {
+		return fmt.Errorf("%w", ErrInvalidReinvestigation)
+	}
+	return nil
+}
+
+func (jobService *JobService) Reinvestigate(ctx context.Context, organizationID uuid.UUID, repositoryID uuid.UUID, issueNumber int, sourceID uuid.UUID, providerConfigID uuid.UUID, model string, createdBy uuid.UUID) (*Job, error) {
+	source, _, err := jobService.GetForOrg(ctx, organizationID, sourceID)
+	if err != nil {
+		return nil, err
+	}
+	if err := validateReinvestigateSource(source, organizationID, repositoryID, issueNumber); err != nil {
+		return nil, err
+	}
+	return jobService.EnqueueInvestigation(ctx, organizationID, repositoryID, providerConfigID, model, createdBy, issueNumber)
 }

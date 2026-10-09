@@ -115,3 +115,70 @@ func TestValidateInputSize(t *testing.T) {
 		t.Fatalf("expected ErrInvalidInput above limit, got %v", err)
 	}
 }
+
+func needsInfoResult() string {
+	return `{"summary":"Pool exhaustion","readiness":"NEEDS_INFORMATION","missing_information":["repro steps"],"signals":["x"],"observed_behavior":"","expected_behavior":"","reproduction_steps":[],"environment":"","hypotheses":[]}`
+}
+
+func readyResult() string {
+	return `{"summary":"Pool exhaustion","readiness":"READY","missing_information":[],"signals":["x"],"observed_behavior":"o","expected_behavior":"e","reproduction_steps":[],"environment":"","hypotheses":[]}`
+}
+
+func gateSource() *Job {
+	orgID := uuid.New()
+	repoID := uuid.New()
+	result := needsInfoResult()
+	return &Job{
+		ID:             uuid.New(),
+		OrganizationID: orgID,
+		RepositoryID:   &repoID,
+		CreatedBy:      uuid.New(),
+		Kind:           KindInvestigate,
+		IssueNumber:    7,
+		Status:         StatusDone,
+		Result:         &result,
+	}
+}
+
+func TestValidateReinvestigateSourceValid(t *testing.T) {
+	job := gateSource()
+	if err := validateReinvestigateSource(job, job.OrganizationID, *job.RepositoryID, job.IssueNumber); err != nil {
+		t.Fatalf("expected valid source, got %v", err)
+	}
+}
+
+func TestValidateReinvestigateSourceMatrix(t *testing.T) {
+	base := gateSource()
+	ready := readyResult()
+	cases := []struct {
+		name   string
+		mutate func(*Job)
+	}{
+		{"ready", func(j *Job) { j.Result = &ready }},
+		{"failed status", func(j *Job) { j.Status = StatusFailed }},
+		{"queued status", func(j *Job) { j.Status = StatusQueued }},
+		{"running status", func(j *Job) { j.Status = StatusRunning }},
+		{"refine kind", func(j *Job) { j.Kind = KindRefine }},
+		{"nil repository", func(j *Job) { j.RepositoryID = nil }},
+		{"wrong repository", func(j *Job) { id := uuid.New(); j.RepositoryID = &id }},
+		{"wrong issue", func(j *Job) { j.IssueNumber = 8 }},
+		{"nil result", func(j *Job) { j.Result = nil }},
+		{"malformed result", func(j *Job) { bad := "not json"; j.Result = &bad }},
+	}
+	for _, tc := range cases {
+		job := gateSource()
+		job.OrganizationID = base.OrganizationID
+		job.RepositoryID = base.RepositoryID
+		tc.mutate(job)
+		if err := validateReinvestigateSource(job, base.OrganizationID, *base.RepositoryID, 7); !errors.Is(err, ErrInvalidReinvestigation) {
+			t.Fatalf("%s: expected ErrInvalidReinvestigation, got %v", tc.name, err)
+		}
+	}
+}
+
+func TestValidateReinvestigateSourceWrongOrg(t *testing.T) {
+	job := gateSource()
+	if err := validateReinvestigateSource(job, uuid.New(), *job.RepositoryID, job.IssueNumber); !errors.Is(err, ErrInvalidReinvestigation) {
+		t.Fatalf("expected ErrInvalidReinvestigation, got %v", err)
+	}
+}
