@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -254,4 +255,21 @@ func (jobRepository *JobRepository) Claim(ctx context.Context, id uuid.UUID) (*J
 		return nil, fmt.Errorf("%w: %w", ErrClaimJob, err)
 	}
 	return &job, nil
+}
+
+const interruptedReason = "job interrupted before completion; marked failed on startup recovery"
+
+func (jobRepository *JobRepository) FailStaleRunning(ctx context.Context, olderThan time.Duration) (int64, error) {
+	tag, err := jobRepository.dbPool.Exec(
+		ctx,
+		"UPDATE jobs SET status=$1, error=$2, updated_at=NOW() WHERE status=$3 AND updated_at < NOW() - make_interval(secs => $4)",
+		StatusFailed,
+		interruptedReason,
+		StatusRunning,
+		olderThan.Seconds(),
+	)
+	if err != nil {
+		return 0, fmt.Errorf("%w: %w", ErrUpdateJob, err)
+	}
+	return tag.RowsAffected(), nil
 }

@@ -31,6 +31,23 @@ const (
 	terminalRetryDelay = 200 * time.Millisecond
 )
 
+// recoveryGracePeriod bounds how long after its last update a running job
+// is still assumed live. A worker always finishes within jobTimeout plus
+// the bounded terminal-write budget, so any running row older than
+// jobTimeout+recoveryGracePeriod cannot belong to a live worker — even on
+// another instance sharing the database, provided every instance uses the
+// same JOB_TIMEOUT_SECONDS. Heterogeneous timeouts across instances sharing
+// one database break this guarantee.
+const recoveryGracePeriod = 5 * time.Minute
+
+func RecoveryThreshold(jobTimeout time.Duration) time.Duration {
+	return jobTimeout + recoveryGracePeriod
+}
+
+func (jobService *JobService) RecoverInterruptedJobs(ctx context.Context, maxAge time.Duration) (int64, error) {
+	return jobService.JobRepository.FailStaleRunning(ctx, maxAge)
+}
+
 func retryTerminal(ctx context.Context, op func(context.Context) error) error {
 	var err error
 	for attempt := 0; attempt < terminalAttempts; attempt++ {

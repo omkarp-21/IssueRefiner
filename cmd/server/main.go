@@ -90,7 +90,14 @@ func main() {
 
 	jobService := jobs.NewJobService(&jobRepository, &repositoryService, &providerService)
 
-	workerPool := worker.NewPool(&jobService, cfg.Worker.WorkerCount, cfg.Worker.QueueSize, time.Duration(cfg.Worker.JobTimeoutSeconds)*time.Second)
+	jobTimeout := time.Duration(cfg.Worker.JobTimeoutSeconds) * time.Second
+	if recovered, err := jobService.RecoverInterruptedJobs(context.Background(), jobs.RecoveryThreshold(jobTimeout)); err != nil {
+		log.Printf("Interrupted job recovery failed (continuing startup): %v", err)
+	} else if recovered > 0 {
+		log.Printf("Marked %d interrupted job(s) as failed", recovered)
+	}
+
+	workerPool := worker.NewPool(&jobService, cfg.Worker.WorkerCount, cfg.Worker.QueueSize, jobTimeout)
 	workerPool.Start()
 	log.Printf("Worker pool started with %d workers", cfg.Worker.WorkerCount)
 

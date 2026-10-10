@@ -222,3 +222,17 @@ func TestPostInformationRequestOversizedHasNoSideEffects(t *testing.T) {
 		t.Fatalf("expected ErrInvalidInput, got %v", err)
 	}
 }
+
+func TestRecoveryThresholdExceedsWorstCaseRun(t *testing.T) {
+	// A live worker always finishes within jobTimeout plus the bounded
+	// terminal-write budget (5s persist context, 3 attempts). The recovery
+	// threshold must stay comfortably above that for any configured timeout,
+	// otherwise recovery could fail jobs owned by live workers.
+	for _, jobTimeout := range []time.Duration{time.Second, 30 * time.Second, time.Hour} {
+		threshold := RecoveryThreshold(jobTimeout)
+		worstCase := jobTimeout + 5*time.Second + 3*200*time.Millisecond
+		if threshold <= worstCase {
+			t.Fatalf("threshold %v does not exceed worst-case run %v for timeout %v", threshold, worstCase, jobTimeout)
+		}
+	}
+}
