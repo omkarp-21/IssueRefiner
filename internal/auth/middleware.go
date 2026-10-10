@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 const sessionCookie = "session_token"
@@ -43,6 +44,7 @@ func RequireAuth(sessionService *sessions.SessionService, userService *users.Use
 		c.Set("user", user)
 		c.Set("organization", organization)
 		c.Set("role", role)
+		c.Set("session_id", session.ID)
 		c.Next()
 	}
 }
@@ -67,6 +69,12 @@ func CurrentOrg(c *gin.Context) (*orgs.Organization, string) {
 	role, _ := c.Get("role")
 	r, _ := role.(string)
 	return o, r
+}
+
+func CurrentSessionID(c *gin.Context) uuid.UUID {
+	sessionID, _ := c.Get("session_id")
+	id, _ := sessionID.(uuid.UUID)
+	return id
 }
 
 func RequireOwner() gin.HandlerFunc {

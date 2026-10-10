@@ -107,6 +107,7 @@ func main() {
 	requireAuth := auth.RequireAuth(&sessionService, &userService, &organizationService)
 	health.RegisterRoutes(router)
 	authHandler.RegisterRoutes(router)
+	authHandler.RegisterAPIRoutes(router, requireAuth)
 	jobHandler.RegisterRoutes(router, requireAuth)
 	repositoryHandler.RegisterRoutes(router, requireAuth)
 	providerHandler.RegisterRoutes(router, requireAuth, auth.RequireOwner())

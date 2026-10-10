@@ -56,6 +56,10 @@ func (sessionService *SessionService) SetOrganization(ctx context.Context, sessi
 	return sessionService.SessionRepository.SetOrganization(ctx, sessionID, organizationID)
 }
 
+func (sessionService *SessionService) Delete(ctx context.Context, sessionID uuid.UUID) error {
+	return sessionService.SessionRepository.Delete(ctx, sessionID)
+}
+
 func (sessionService *SessionService) GetSession(ctx context.Context, token string) (*Session, error) {
 	if token == "" {
 		return nil, ErrSessionNotFound

@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type AuthHandler struct {
@@ -109,4 +110,39 @@ func (authHandler *AuthHandler) GitHubCallback(c *gin.Context) {
 func (authHandler *AuthHandler) RegisterRoutes(router *gin.Engine) {
 	router.GET("/auth/github", authHandler.StartGitHubLogin)
 	router.GET("/auth/github/callback", authHandler.GitHubCallback)
+}
+
+func (authHandler *AuthHandler) RegisterAPIRoutes(router *gin.Engine, requireAuth gin.HandlerFunc) {
+	api := router.Group("/api", requireAuth)
+	api.GET("/me", authHandler.GetMe)
+	api.POST("/logout", authHandler.Logout)
+}
+
+func (authHandler *AuthHandler) GetMe(c *gin.Context) {
+	user := CurrentUser(c)
+	organization, role := CurrentOrg(c)
+	if user == nil || organization == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"user":         user,
+		"organization": organization,
+		"role":         role,
+	})
+}
+
+func (authHandler *AuthHandler) Logout(c *gin.Context) {
+	if sessionID := CurrentSessionID(c); sessionID != uuid.Nil {
+		if err := authHandler.SessionService.Delete(c.Request.Context(), sessionID); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to log out"})
+			return
+		}
+	}
+	c.SetSameSite(http.SameSiteLaxMode)
+	c.SetCookie(sessionCookie, "", -1, "/", "", false, true)
+	c.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"message": "Logged out successfully",
+	})
 }

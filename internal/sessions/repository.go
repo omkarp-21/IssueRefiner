@@ -14,6 +14,7 @@ var (
 	ErrCreateSession = errors.New("failed to create session")
 	ErrFindSession   = errors.New("failed to find session")
 	ErrUpdateSession = errors.New("failed to update session")
+	ErrDeleteSession = errors.New("failed to delete session")
 )
 
 type SessionRepository struct {
@@ -63,6 +64,18 @@ func (sessionRepository *SessionRepository) SetOrganization(ctx context.Context,
 	)
 	if err != nil {
 		return fmt.Errorf("%w: %w", ErrUpdateSession, err)
+	}
+	return nil
+}
+
+func (sessionRepository *SessionRepository) Delete(ctx context.Context, sessionID uuid.UUID) error {
+	_, err := sessionRepository.dbPool.Exec(
+		ctx,
+		"DELETE FROM sessions WHERE id=$1",
+		sessionID,
+	)
+	if err != nil {
+		return fmt.Errorf("%w: %w", ErrDeleteSession, err)
 	}
 	return nil
 }
