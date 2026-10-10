@@ -95,7 +95,7 @@ func (repositoryRepository *RepositoryRepository) Upsert(ctx context.Context, or
 func (repositoryRepository *RepositoryRepository) ListForOrg(ctx context.Context, organizationID uuid.UUID) ([]Repository, error) {
 	rows, err := repositoryRepository.dbPool.Query(
 		ctx,
-		"SELECT "+repositoryColumns+" FROM repositories WHERE organization_id=$1 ORDER BY full_name",
+		"SELECT "+repositoryColumns+" FROM repositories WHERE organization_id=$1 ORDER BY full_name LIMIT 50",
 		organizationID,
 	)
 	if err != nil {

@@ -107,7 +107,7 @@ func (jobRepository *JobRepository) FindByID(ctx context.Context, id uuid.UUID) 
 func (jobRepository *JobRepository) ListForIssue(ctx context.Context, organizationID uuid.UUID, repositoryID uuid.UUID, issueNumber int) ([]Job, error) {
 	rows, err := jobRepository.dbPool.Query(
 		ctx,
-		"SELECT "+jobColumns+" FROM jobs WHERE organization_id=$1 AND repository_id=$2 AND issue_number=$3 AND kind=$4 ORDER BY created_at DESC",
+		"SELECT "+jobColumns+" FROM jobs WHERE organization_id=$1 AND repository_id=$2 AND issue_number=$3 AND kind=$4 ORDER BY created_at DESC, id DESC LIMIT 50",
 		organizationID,
 		repositoryID,
 		issueNumber,
