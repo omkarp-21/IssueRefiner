@@ -5,15 +5,17 @@ import (
 	"errors"
 	"fmt"
 	"issue-refiner/internal/github"
+	"issue-refiner/internal/tokens"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 )
 
 var (
-	ErrInvalidRepo    = errors.New("invalid repository reference")
-	ErrGitHubToken    = errors.New("github account not connected")
-	ErrGitHubUpstream = errors.New("github request failed")
+	ErrInvalidRepo      = errors.New("invalid repository reference")
+	ErrGitHubToken      = errors.New("github account not connected")
+	ErrTokenNeedsReauth = errors.New("github token needs reauthorization")
+	ErrGitHubUpstream   = errors.New("github request failed")
 )
 
 type GitHubClient interface {
@@ -27,6 +29,17 @@ type GitHubClient interface {
 
 type TokenStore interface {
 	Get(ctx context.Context, userID uuid.UUID) (string, error)
+}
+
+func userToken(store TokenStore, ctx context.Context, userID uuid.UUID) (string, error) {
+	token, err := store.Get(ctx, userID)
+	if err != nil {
+		if errors.Is(err, tokens.ErrLegacyToken) || errors.Is(err, tokens.ErrTokenCorrupt) {
+			return "", fmt.Errorf("%w: %w", ErrTokenNeedsReauth, err)
+		}
+		return "", fmt.Errorf("%w: %w", ErrGitHubToken, err)
+	}
+	return token, nil
 }
 
 type RepositoryService struct {
@@ -63,9 +76,9 @@ func (repositoryService *RepositoryService) ImportRepo(ctx context.Context, orga
 	if owner == "" || repo == "" {
 		return nil, fmt.Errorf("%w: owner and repo are required", ErrInvalidRepo)
 	}
-	token, err := repositoryService.Tokens.Get(ctx, userID)
+	token, err := userToken(repositoryService.Tokens, ctx, userID)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %w", ErrGitHubToken, err)
+		return nil, err
 	}
 	remote, err := repositoryService.GitHub.GetRepository(ctx, token, owner, repo)
 	if err != nil {
@@ -105,9 +118,9 @@ func (repositoryService *RepositoryService) ListContributors(ctx context.Context
 	if err != nil {
 		return nil, err
 	}
-	token, err := repositoryService.Tokens.Get(ctx, userID)
+	token, err := userToken(repositoryService.Tokens, ctx, userID)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %w", ErrGitHubToken, err)
+		return nil, err
 	}
 	page, perPage = NormalizePage(page, perPage)
 	contributors, err := repositoryService.GitHub.ListContributors(ctx, token, repository.Owner, repository.Name, page, perPage)
@@ -125,9 +138,9 @@ func (repositoryService *RepositoryService) ListIssues(ctx context.Context, orga
 	if err != nil {
 		return nil, err
 	}
-	token, err := repositoryService.Tokens.Get(ctx, userID)
+	token, err := userToken(repositoryService.Tokens, ctx, userID)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %w", ErrGitHubToken, err)
+		return nil, err
 	}
 	page, perPage = NormalizePage(page, perPage)
 	issues, err := repositoryService.GitHub.ListIssues(ctx, token, repository.Owner, repository.Name, state, page, perPage)
@@ -145,9 +158,9 @@ func (repositoryService *RepositoryService) GetIssue(ctx context.Context, organi
 	if err != nil {
 		return nil, err
 	}
-	token, err := repositoryService.Tokens.Get(ctx, userID)
+	token, err := userToken(repositoryService.Tokens, ctx, userID)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %w", ErrGitHubToken, err)
+		return nil, err
 	}
 	issue, err := repositoryService.GitHub.GetIssue(ctx, token, repository.Owner, repository.Name, issueNumber)
 	if err != nil {
@@ -164,9 +177,9 @@ func (repositoryService *RepositoryService) GetIssueComments(ctx context.Context
 	if err != nil {
 		return nil, err
 	}
-	token, err := repositoryService.Tokens.Get(ctx, userID)
+	token, err := userToken(repositoryService.Tokens, ctx, userID)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %w", ErrGitHubToken, err)
+		return nil, err
 	}
 	comments, err := repositoryService.GitHub.ListIssueComments(ctx, token, repository.Owner, repository.Name, issueNumber)
 	if err != nil {
@@ -183,9 +196,9 @@ func (repositoryService *RepositoryService) PostIssueComment(ctx context.Context
 	if err != nil {
 		return nil, err
 	}
-	token, err := repositoryService.Tokens.Get(ctx, userID)
+	token, err := userToken(repositoryService.Tokens, ctx, userID)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %w", ErrGitHubToken, err)
+		return nil, err
 	}
 	comment, err := repositoryService.GitHub.CreateIssueComment(ctx, token, repository.Owner, repository.Name, issueNumber, body)
 	if err != nil {

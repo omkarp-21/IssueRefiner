@@ -179,6 +179,8 @@ func (jobHandler *JobHandler) StartInvestigation(c *gin.Context) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		case errors.Is(err, repos.ErrGitHubToken):
 			c.JSON(http.StatusForbidden, gin.H{"error": "GitHub account not connected"})
+		case errors.Is(err, repos.ErrTokenNeedsReauth):
+			c.JSON(http.StatusForbidden, gin.H{"error": "GitHub access expired; reconnect GitHub and try again"})
 		case errors.Is(err, github.ErrNotFound):
 			c.JSON(http.StatusNotFound, gin.H{"error": "Issue not found"})
 		case errors.Is(err, repos.ErrGitHubUpstream):
@@ -240,6 +242,8 @@ func (jobHandler *JobHandler) Reinvestigate(c *gin.Context) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		case errors.Is(err, repos.ErrGitHubToken):
 			c.JSON(http.StatusForbidden, gin.H{"error": "GitHub account not connected"})
+		case errors.Is(err, repos.ErrTokenNeedsReauth):
+			c.JSON(http.StatusForbidden, gin.H{"error": "GitHub access expired; reconnect GitHub and try again"})
 		case errors.Is(err, github.ErrNotFound):
 			c.JSON(http.StatusNotFound, gin.H{"error": "Issue not found"})
 		case errors.Is(err, repos.ErrGitHubUpstream):
@@ -335,6 +339,8 @@ func (jobHandler *JobHandler) PostInformationRequest(c *gin.Context) {
 			c.JSON(http.StatusConflict, gin.H{"error": "Investigation cannot be used for an information request"})
 		case errors.Is(err, repos.ErrGitHubToken):
 			c.JSON(http.StatusForbidden, gin.H{"error": "GitHub account not connected"})
+		case errors.Is(err, repos.ErrTokenNeedsReauth):
+			c.JSON(http.StatusForbidden, gin.H{"error": "GitHub access expired; reconnect GitHub and try again"})
 		case errors.Is(err, github.ErrNotFound):
 			c.JSON(http.StatusNotFound, gin.H{"error": "Issue not found or GitHub access revoked; reconnect GitHub and try again"})
 		case errors.Is(err, repos.ErrGitHubUpstream):

@@ -65,7 +65,7 @@ func main() {
 	githubOAuth := github.NewOAuth(cfg.GitHub)
 	githubClient := github.NewClient("https://api.github.com")
 
-	tokenRepository := tokens.NewTokenRepository(dbPool)
+	tokenRepository := tokens.NewTokenRepository(dbPool, cfg.Security.CredentialKey)
 	tokenService := tokens.NewTokenService(&tokenRepository)
 	authService := auth.NewAuthService(&githubOAuth, &userService, &tokenService)
 

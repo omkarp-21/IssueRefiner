@@ -64,6 +64,8 @@ func (repositoryHandler *RepositoryHandler) ImportRepo(c *gin.Context) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
 		case errors.Is(err, ErrGitHubToken):
 			c.JSON(http.StatusForbidden, gin.H{"error": "GitHub account not connected"})
+		case errors.Is(err, ErrTokenNeedsReauth):
+			c.JSON(http.StatusForbidden, gin.H{"error": "GitHub access expired; reconnect GitHub and try again"})
 		case errors.Is(err, ErrGitHubUpstream):
 			c.JSON(githubStatus(err), gin.H{"error": "GitHub request failed"})
 		default:
@@ -132,6 +134,8 @@ func (repositoryHandler *RepositoryHandler) ListContributors(c *gin.Context) {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Repository not found"})
 		case errors.Is(err, ErrGitHubToken):
 			c.JSON(http.StatusForbidden, gin.H{"error": "GitHub account not connected"})
+		case errors.Is(err, ErrTokenNeedsReauth):
+			c.JSON(http.StatusForbidden, gin.H{"error": "GitHub access expired; reconnect GitHub and try again"})
 		case errors.Is(err, ErrGitHubUpstream):
 			c.JSON(githubStatus(err), gin.H{"error": "GitHub request failed"})
 		default:
@@ -165,6 +169,8 @@ func (repositoryHandler *RepositoryHandler) ListIssues(c *gin.Context) {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Repository not found"})
 		case errors.Is(err, ErrGitHubToken):
 			c.JSON(http.StatusForbidden, gin.H{"error": "GitHub account not connected"})
+		case errors.Is(err, ErrTokenNeedsReauth):
+			c.JSON(http.StatusForbidden, gin.H{"error": "GitHub access expired; reconnect GitHub and try again"})
 		case errors.Is(err, ErrGitHubUpstream):
 			c.JSON(githubStatus(err), gin.H{"error": "GitHub request failed"})
 		default:
