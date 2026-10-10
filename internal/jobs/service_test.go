@@ -3,8 +3,11 @@ package jobs
 import (
 	"context"
 	"errors"
+	"strings"
 	"testing"
 	"time"
+
+	"issue-refiner/internal/investigation"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -180,5 +183,42 @@ func TestValidateReinvestigateSourceWrongOrg(t *testing.T) {
 	job := gateSource()
 	if err := validateReinvestigateSource(job, uuid.New(), *job.RepositoryID, job.IssueNumber); !errors.Is(err, ErrInvalidReinvestigation) {
 		t.Fatalf("expected ErrInvalidReinvestigation, got %v", err)
+	}
+}
+
+func TestPostInformationRequestEmptyBody(t *testing.T) {
+	service := &JobService{}
+	for _, body := range []string{"", "   ", "\n\t "} {
+		_, err := service.PostInformationRequest(context.Background(), uuid.New(), uuid.New(), uuid.New(), 7, uuid.New(), body)
+		if !errors.Is(err, ErrInvalidInput) {
+			t.Fatalf("expected ErrInvalidInput for %q, got %v", body, err)
+		}
+	}
+}
+
+func TestPostInformationRequestBodySizeBound(t *testing.T) {
+	atLimit := strings.Repeat("a", investigation.MaxInformationRequestBytes)
+	if err := validateCommentBody(atLimit); err != nil {
+		t.Fatalf("expected body exactly at limit to pass validation, got %v", err)
+	}
+	over := strings.Repeat("a", investigation.MaxInformationRequestBytes+1)
+	if err := validateCommentBody(over); !errors.Is(err, ErrInvalidInput) {
+		t.Fatalf("expected ErrInvalidInput one byte over, got %v", err)
+	}
+	multibyte := strings.Repeat("é", investigation.MaxInformationRequestBytes/2+1)
+	if err := validateCommentBody(multibyte); !errors.Is(err, ErrInvalidInput) {
+		t.Fatalf("expected multibyte body measured in bytes to be rejected, got %v", err)
+	}
+	padded := strings.Repeat(" ", 100) + strings.Repeat("b", investigation.MaxInformationRequestBytes+1)
+	if err := validateCommentBody(padded); !errors.Is(err, ErrInvalidInput) {
+		t.Fatalf("expected whitespace padding not to bypass the bound, got %v", err)
+	}
+}
+
+func TestPostInformationRequestOversizedHasNoSideEffects(t *testing.T) {
+	service := &JobService{}
+	over := strings.Repeat("a", investigation.MaxInformationRequestBytes+1)
+	if _, err := service.PostInformationRequest(context.Background(), uuid.New(), uuid.New(), uuid.New(), 7, uuid.New(), over); !errors.Is(err, ErrInvalidInput) {
+		t.Fatalf("expected ErrInvalidInput, got %v", err)
 	}
 }

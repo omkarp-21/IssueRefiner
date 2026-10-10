@@ -142,6 +142,8 @@ func (jobHandler *JobHandler) RegisterRoutes(router *gin.Engine, requireAuth gin
 	api.POST("/repos/:id/refine", jobHandler.CreateRepoRefine)
 	api.POST("/repos/:id/investigate", jobHandler.StartInvestigation)
 	api.POST("/repos/:id/issues/:number/investigations/:investigation_id/reinvestigate", jobHandler.Reinvestigate)
+	api.GET("/repos/:id/issues/:number/investigations/:investigation_id/request-draft", jobHandler.GetInformationDraft)
+	api.POST("/repos/:id/issues/:number/investigations/:investigation_id/request-information", jobHandler.PostInformationRequest)
 	api.GET("/repos/:id/issues/:number/investigations", jobHandler.ListInvestigations)
 	api.GET("/jobs/:id", jobHandler.GetJob)
 }
@@ -253,4 +255,94 @@ func (jobHandler *JobHandler) Reinvestigate(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusAccepted, gin.H{"job": job})
+}
+
+type informationRequest struct {
+	Comment string `json:"comment"`
+}
+
+func (jobHandler *JobHandler) parseInformationTarget(c *gin.Context) (uuid.UUID, int, uuid.UUID, bool) {
+	repositoryID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid repository id"})
+		return uuid.UUID{}, 0, uuid.UUID{}, false
+	}
+	issueNumber, err := strconv.Atoi(c.Param("number"))
+	if err != nil || issueNumber <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid issue number"})
+		return uuid.UUID{}, 0, uuid.UUID{}, false
+	}
+	sourceID, err := uuid.Parse(c.Param("investigation_id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid investigation id"})
+		return uuid.UUID{}, 0, uuid.UUID{}, false
+	}
+	return repositoryID, issueNumber, sourceID, true
+}
+
+func (jobHandler *JobHandler) GetInformationDraft(c *gin.Context) {
+	user := auth.CurrentUser(c)
+	organization, _ := auth.CurrentOrg(c)
+	if user == nil || organization == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+	repositoryID, issueNumber, sourceID, ok := jobHandler.parseInformationTarget(c)
+	if !ok {
+		return
+	}
+	draft, err := jobHandler.JobService.GetInformationDraft(c.Request.Context(), organization.ID, repositoryID, issueNumber, sourceID)
+	if err != nil {
+		switch {
+		case errors.Is(err, ErrJobNotFound),
+			errors.Is(err, repos.ErrRepositoryNotFound):
+			c.JSON(http.StatusNotFound, gin.H{"error": "Not found"})
+		case errors.Is(err, ErrInvalidReinvestigation):
+			c.JSON(http.StatusConflict, gin.H{"error": "Investigation cannot be used for an information request"})
+		default:
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to build information request"})
+		}
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"comment": draft})
+}
+
+func (jobHandler *JobHandler) PostInformationRequest(c *gin.Context) {
+	user := auth.CurrentUser(c)
+	organization, _ := auth.CurrentOrg(c)
+	if user == nil || organization == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+	repositoryID, issueNumber, sourceID, ok := jobHandler.parseInformationTarget(c)
+	if !ok {
+		return
+	}
+	var req informationRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		return
+	}
+	comment, err := jobHandler.JobService.PostInformationRequest(c.Request.Context(), organization.ID, user.ID, repositoryID, issueNumber, sourceID, req.Comment)
+	if err != nil {
+		switch {
+		case errors.Is(err, ErrInvalidInput):
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		case errors.Is(err, ErrJobNotFound),
+			errors.Is(err, repos.ErrRepositoryNotFound):
+			c.JSON(http.StatusNotFound, gin.H{"error": "Not found"})
+		case errors.Is(err, ErrInvalidReinvestigation):
+			c.JSON(http.StatusConflict, gin.H{"error": "Investigation cannot be used for an information request"})
+		case errors.Is(err, repos.ErrGitHubToken):
+			c.JSON(http.StatusForbidden, gin.H{"error": "GitHub account not connected"})
+		case errors.Is(err, github.ErrNotFound):
+			c.JSON(http.StatusNotFound, gin.H{"error": "Issue not found or GitHub access revoked; reconnect GitHub and try again"})
+		case errors.Is(err, repos.ErrGitHubUpstream):
+			c.JSON(http.StatusBadGateway, gin.H{"error": "GitHub request failed"})
+		default:
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to post information request"})
+		}
+		return
+	}
+	c.JSON(http.StatusCreated, gin.H{"id": comment.ID, "html_url": comment.HTMLURL, "body": comment.Body})
 }

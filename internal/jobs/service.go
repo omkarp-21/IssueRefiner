@@ -4,9 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"issue-refiner/internal/github"
 	"issue-refiner/internal/investigation"
 	"issue-refiner/internal/providers"
 	"issue-refiner/internal/repos"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -298,4 +300,50 @@ func (jobService *JobService) Reinvestigate(ctx context.Context, organizationID 
 		return nil, err
 	}
 	return jobService.EnqueueInvestigation(ctx, organizationID, repositoryID, providerConfigID, model, createdBy, issueNumber)
+}
+
+func (jobService *JobService) loadInformationSource(ctx context.Context, organizationID uuid.UUID, repositoryID uuid.UUID, issueNumber int, sourceID uuid.UUID) (*investigation.InvestigationResult, error) {
+	if _, err := jobService.Repositories.GetRepo(ctx, organizationID, repositoryID); err != nil {
+		return nil, err
+	}
+	source, _, err := jobService.GetForOrg(ctx, organizationID, sourceID)
+	if err != nil {
+		return nil, err
+	}
+	if err := validateReinvestigateSource(source, organizationID, repositoryID, issueNumber); err != nil {
+		return nil, err
+	}
+	result, err := investigation.ParseResult(*source.Result)
+	if err != nil {
+		return nil, fmt.Errorf("%w", ErrInvalidReinvestigation)
+	}
+	return result, nil
+}
+
+func (jobService *JobService) GetInformationDraft(ctx context.Context, organizationID uuid.UUID, repositoryID uuid.UUID, issueNumber int, sourceID uuid.UUID) (string, error) {
+	result, err := jobService.loadInformationSource(ctx, organizationID, repositoryID, issueNumber, sourceID)
+	if err != nil {
+		return "", err
+	}
+	return investigation.BuildInformationRequest(result.MissingInformation), nil
+}
+
+func validateCommentBody(body string) error {
+	if strings.TrimSpace(body) == "" {
+		return fmt.Errorf("%w: comment body is required", ErrInvalidInput)
+	}
+	if len(body) > investigation.MaxInformationRequestBytes {
+		return fmt.Errorf("%w: comment body exceeds %d bytes", ErrInvalidInput, investigation.MaxInformationRequestBytes)
+	}
+	return nil
+}
+
+func (jobService *JobService) PostInformationRequest(ctx context.Context, organizationID uuid.UUID, userID uuid.UUID, repositoryID uuid.UUID, issueNumber int, sourceID uuid.UUID, body string) (*github.CreatedIssueComment, error) {
+	if err := validateCommentBody(body); err != nil {
+		return nil, err
+	}
+	if _, err := jobService.loadInformationSource(ctx, organizationID, repositoryID, issueNumber, sourceID); err != nil {
+		return nil, err
+	}
+	return jobService.Repositories.PostIssueComment(ctx, organizationID, userID, repositoryID, issueNumber, body)
 }

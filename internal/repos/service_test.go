@@ -43,6 +43,13 @@ func (stub stubGitHub) GetIssue(ctx context.Context, token string, owner string,
 	return &github.Issue{Number: issueNumber, Title: "T", Body: "B", State: "open"}, nil
 }
 
+func (stub stubGitHub) CreateIssueComment(ctx context.Context, token string, owner string, repo string, issueNumber int, body string) (*github.CreatedIssueComment, error) {
+	if stub.err != nil {
+		return nil, stub.err
+	}
+	return &github.CreatedIssueComment{ID: 9001, HTMLURL: "https://github.com/o/r/issues/7#issuecomment-9001", Body: body}, nil
+}
+
 func (stub stubGitHub) ListIssueComments(ctx context.Context, token string, owner string, repo string, issueNumber int) ([]github.IssueComment, error) {
 	if stub.err != nil {
 		return nil, stub.err
@@ -103,5 +110,13 @@ func TestImportRepoUpstreamError(t *testing.T) {
 	_, err := service.ImportRepo(context.Background(), uuid.New(), uuid.New(), "octo", "demo")
 	if !errors.Is(err, ErrGitHubUpstream) || !errors.Is(err, github.ErrNotFound) {
 		t.Fatalf("expected wrapped ErrNotFound, got %v", err)
+	}
+}
+
+func TestPostIssueCommentInvalidIssue(t *testing.T) {
+	service := testService(stubTokens{token: "token"}, stubGitHub{})
+	_, err := service.PostIssueComment(context.Background(), uuid.New(), uuid.New(), uuid.New(), 0, "hello")
+	if !errors.Is(err, ErrInvalidRepo) {
+		t.Fatalf("expected ErrInvalidRepo, got %v", err)
 	}
 }

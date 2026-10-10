@@ -1,6 +1,7 @@
 package github
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -217,6 +218,37 @@ func (client *Client) ListIssueComments(ctx context.Context, token string, owner
 	return comments, nil
 }
 
+type CreatedIssueComment struct {
+	ID      int64
+	HTMLURL string
+	Body    string
+}
+
+type createdIssueCommentResponse struct {
+	ID      int64  `json:"id"`
+	HTMLURL string `json:"html_url"`
+	Body    string `json:"body"`
+}
+
+func (client *Client) CreateIssueComment(ctx context.Context, token string, owner string, repo string, issueNumber int, body string) (*CreatedIssueComment, error) {
+	payload, err := json.Marshal(map[string]string{"body": body})
+	if err != nil {
+		return nil, fmt.Errorf("%w: %w", ErrUserRetrieval, err)
+	}
+	var raw createdIssueCommentResponse
+	if err := client.post(ctx, token, "/repos/"+owner+"/"+repo+"/issues/"+strconv.Itoa(issueNumber)+"/comments", payload, &raw); err != nil {
+		return nil, err
+	}
+	if raw.ID == 0 {
+		return nil, fmt.Errorf("%w: missing comment id", ErrDecodeBody)
+	}
+	return &CreatedIssueComment{
+		ID:      raw.ID,
+		HTMLURL: raw.HTMLURL,
+		Body:    raw.Body,
+	}, nil
+}
+
 func (client *Client) get(ctx context.Context, token string, path string, query map[string]string, out any) error {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, client.baseURL+path, nil)
 	if err != nil {
@@ -237,6 +269,29 @@ func (client *Client) get(ctx context.Context, token string, path string, query 
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
+		return statusError(resp)
+	}
+	if err := json.NewDecoder(resp.Body).Decode(out); err != nil {
+		return fmt.Errorf("%w: %w", ErrDecodeBody, err)
+	}
+	return nil
+}
+
+func (client *Client) post(ctx context.Context, token string, path string, payload []byte, out any) error {
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, client.baseURL+path, bytes.NewReader(payload))
+	if err != nil {
+		return fmt.Errorf("%w: %w", ErrUserRetrieval, err)
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Accept", "application/vnd.github+json")
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("User-Agent", "IssueRefiner-App")
+	resp, err := client.httpClient.Do(req)
+	if err != nil {
+		return fmt.Errorf("%w: %w", ErrUserRetrieval, err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusCreated {
 		return statusError(resp)
 	}
 	if err := json.NewDecoder(resp.Body).Decode(out); err != nil {

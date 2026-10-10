@@ -3,6 +3,7 @@ package github
 import (
 	"context"
 	"errors"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -173,5 +174,93 @@ func TestListIssueCommentsErrors(t *testing.T) {
 		if !errors.Is(err, tc.want) {
 			t.Fatalf("%s: expected %v, got %v", tc.name, tc.want, err)
 		}
+	}
+}
+
+func TestCreateIssueComment(t *testing.T) {
+	var method, path, contentType, seenBody string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		method = r.Method
+		path = r.URL.Path
+		contentType = r.Header.Get("Content-Type")
+		raw, _ := io.ReadAll(r.Body)
+		seenBody = string(raw)
+		w.WriteHeader(http.StatusCreated)
+		_, _ = w.Write([]byte(`{"id":9001,"html_url":"https://github.com/o/r/issues/7#issuecomment-9001","body":"hello"}`))
+	}))
+	defer server.Close()
+	client := NewClient(server.URL)
+	comment, err := client.CreateIssueComment(context.Background(), "token", "o", "r", 7, "hello")
+	if err != nil {
+		t.Fatalf("expected no error, got %v", err)
+	}
+	if method != http.MethodPost {
+		t.Fatalf("expected POST, got %s", method)
+	}
+	if path != "/repos/o/r/issues/7/comments" {
+		t.Fatalf("unexpected path %q", path)
+	}
+	if contentType != "application/json" {
+		t.Fatalf("unexpected content type %q", contentType)
+	}
+	if !strings.Contains(seenBody, `"body":"hello"`) {
+		t.Fatalf("expected JSON body with comment, got %q", seenBody)
+	}
+	if comment.ID != 9001 || comment.HTMLURL != "https://github.com/o/r/issues/7#issuecomment-9001" || comment.Body != "hello" {
+		t.Fatalf("unexpected comment: %+v", comment)
+	}
+}
+
+func TestCreateIssueCommentErrors(t *testing.T) {
+	cases := []struct {
+		name   string
+		status int
+		want   error
+	}{
+		{"unauthorized", http.StatusUnauthorized, ErrUnauthorized},
+		{"forbidden", http.StatusForbidden, ErrUnauthorized},
+		{"not found", http.StatusNotFound, ErrNotFound},
+		{"rate limited", http.StatusTooManyRequests, ErrRateLimited},
+		{"server", http.StatusInternalServerError, ErrGitHubServer},
+		{"unexpected", http.StatusTeapot, ErrDiffStatus},
+	}
+	for _, tc := range cases {
+		server := testServer(`{}`, tc.status, nil)
+		client := NewClient(server.URL)
+		_, err := client.CreateIssueComment(context.Background(), "token", "o", "r", 7, "hello")
+		server.Close()
+		if !errors.Is(err, tc.want) {
+			t.Fatalf("%s: expected %v, got %v", tc.name, tc.want, err)
+		}
+	}
+}
+
+func TestCreateIssueCommentMalformed(t *testing.T) {
+	server := testServer(`{"id":`, http.StatusCreated, nil)
+	defer server.Close()
+	client := NewClient(server.URL)
+	if _, err := client.CreateIssueComment(context.Background(), "token", "o", "r", 7, "hello"); !errors.Is(err, ErrDecodeBody) {
+		t.Fatalf("expected ErrDecodeBody, got %v", err)
+	}
+}
+
+func TestCreateIssueCommentMissingID(t *testing.T) {
+	server := testServer(`{"html_url":"https://github.com/o/r/issues/7#x","body":"hello"}`, http.StatusCreated, nil)
+	defer server.Close()
+	client := NewClient(server.URL)
+	if _, err := client.CreateIssueComment(context.Background(), "token", "o", "r", 7, "hello"); !errors.Is(err, ErrDecodeBody) {
+		t.Fatalf("expected ErrDecodeBody, got %v", err)
+	}
+}
+
+func TestCreateIssueCommentTimeout(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		time.Sleep(300 * time.Millisecond)
+	}))
+	defer server.Close()
+	client := NewClient(server.URL)
+	client.httpClient.Timeout = 50 * time.Millisecond
+	if _, err := client.CreateIssueComment(context.Background(), "token", "o", "r", 7, "hello"); err == nil {
+		t.Fatalf("expected timeout error")
 	}
 }
