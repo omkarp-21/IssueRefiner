@@ -1,0 +1,356 @@
+<!DOCTYPE html><html class="dark" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<meta content="web_dashboard" name="shell-type">
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<style>
+    @layer base {
+      html, body { margin: 0; padding: 0; background-color: #080808; }
+      body { overscroll-behavior: none; font-family: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif; }
+    }
+    ::-webkit-scrollbar { display: none; }
+  </style>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            background: "#080808",
+            surface: "#121212",
+            "surface-raised": "#161616",
+            border: "#222222",
+            accent: "#2f81f7",
+            "accent-hover": "#266ed0",
+            foreground: "#f0f0f0",
+            muted: "#888888",
+            subtle: "#555555"
+          },
+          fontFamily: {
+            sans: ["Geist", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
+            mono: ["JetBrains Mono", "monospace"]
+          }
+        }
+      }
+    };
+  </script>
+</head>
+<body class="bg-background text-foreground antialiased selection:bg-accent/20 selection:text-white">
+<!-- Sidebar -->
+<aside class="fixed left-0 top-0 h-full w-60 bg-surface border-r border-border z-50 flex flex-col justify-between select-none">
+<div class="flex flex-col">
+<!-- App Header & Workspace Switcher -->
+<div class="p-4 border-b border-border">
+<div class="flex items-center gap-2 mb-3">
+<div class="w-5 h-5 rounded bg-foreground flex items-center justify-center text-background">
+<span class="material-symbols-outlined text-[14px]">adjust</span>
+</div>
+<span class="font-medium text-[14px] text-foreground tracking-tight">Issue Refiner</span>
+</div>
+<button class="w-full flex items-center justify-between px-2.5 py-1.5 rounded border border-border bg-surface-raised hover:border-subtle transition-colors text-left" type="button">
+<div class="flex items-center gap-2 overflow-hidden">
+<span class="material-symbols-outlined text-muted text-[15px]">domain</span>
+<span class="font-mono text-[12px] text-foreground truncate">acme-corp</span>
+</div>
+<span class="material-symbols-outlined text-muted text-[15px]">unfold_more</span>
+</button>
+</div>
+<!-- Navigation -->
+<div class="px-3 py-4">
+<nav class="space-y-1">
+<a class="flex items-center gap-2.5 px-2.5 py-1.5 rounded text-[13px] font-medium bg-[#1a2333] text-accent transition-colors" href="#">
+<span class="material-symbols-outlined text-[17px]">grid_view</span>
+<span class="">Overview</span>
+</a>
+<a class="flex items-center gap-2.5 px-2.5 py-1.5 rounded text-[13px] text-muted hover:text-foreground hover:bg-surface-raised transition-colors" href="#">
+<span class="material-symbols-outlined text-[17px]">account_tree</span>
+<span class="">Repositories</span>
+</a>
+</nav>
+</div>
+</div>
+<!-- User Profile & Sign Out -->
+<div class="p-3 border-t border-border">
+<div class="px-2 py-2 flex items-center justify-between">
+<div class="flex items-center gap-2.5 min-w-0">
+<div class="w-7 h-7 rounded bg-surface-raised border border-border text-foreground font-mono text-[11px] font-medium flex items-center justify-center shrink-0">
+            AL
+          </div>
+<div class="flex flex-col min-w-0">
+<span class="text-[13px] text-foreground font-medium truncate leading-tight">Alex Liang</span>
+<span class="font-mono text-[11px] text-muted truncate">Staff Eng</span>
+</div>
+</div>
+<button aria-label="Sign out" class="text-muted hover:text-foreground p-1 transition-colors" title="Sign out" type="button">
+<span class="material-symbols-outlined text-[17px]">logout</span>
+</button>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<div class="pl-60">
+<!-- Top Header -->
+<header class="fixed top-0 left-60 right-0 h-13 bg-surface/80 backdrop-blur-md border-b border-border z-40 flex items-center justify-between px-6 select-none">
+<div class="flex items-center gap-2 text-[12px] font-mono text-muted">
+<span class="hover:text-foreground cursor-pointer transition-colors">Repositories</span>
+<span class="text-subtle">/</span>
+<span class="hover:text-foreground cursor-pointer transition-colors">acme/payment-service</span>
+<span class="text-subtle">/</span>
+<span class="text-foreground bg-surface-raised border border-border px-1.5 py-0.5 rounded">#142</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-1">
+<button aria-label="Search" class="w-7 h-7 rounded flex items-center justify-center text-muted hover:text-foreground hover:bg-surface-raised transition-colors" type="button">
+<span class="material-symbols-outlined text-[17px]">search</span>
+</button>
+<button aria-label="Notifications" class="w-7 h-7 rounded flex items-center justify-center text-muted hover:text-foreground hover:bg-surface-raised transition-colors" type="button">
+<span class="material-symbols-outlined text-[17px]">notifications</span>
+</button>
+</div>
+<div class="w-6 h-6 rounded-full bg-surface-raised border border-border flex items-center justify-center text-muted">
+<span class="material-symbols-outlined text-[15px]">person</span>
+</div>
+</div>
+</header>
+<main class="relative pt-13 min-h-screen">
+<div class="max-w-6xl mx-auto px-8 py-8 flex flex-col gap-8">
+<!-- Page Title & Actions -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
+<div>
+<h1 class="text-xl font-semibold text-foreground tracking-tight">Overview</h1>
+<p class="text-[13px] text-muted mt-0.5">
+              Connected repositories and recent issue investigations across your GitHub workspace.
+            </p>
+</div>
+<div class="flex items-center gap-2.5">
+<div class="relative flex items-center">
+<span class="material-symbols-outlined text-muted absolute left-2.5 text-[15px] pointer-events-none">search</span>
+<input class="h-8 pl-8 pr-8 w-56 bg-surface border border-border text-foreground font-mono text-[12px] placeholder-muted rounded outline-none focus:border-subtle transition-colors" id="quickFilterInput" placeholder="Filter repositories..." type="text">
+<span class="absolute right-2 px-1 rounded bg-surface-raised border border-border text-muted font-mono text-[10px]">⌘K</span>
+</div>
+<button class="h-8 px-3 rounded bg-accent hover:bg-accent-hover text-white text-[12px] font-medium flex items-center gap-1.5 transition-colors" type="button">
+<span class="material-symbols-outlined text-[15px]">add</span>
+<span class="">Import repository</span>
+</button>
+</div>
+</div>
+<!-- Connected Repositories Section -->
+<section class="flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<h2 class="text-[14px] font-medium text-foreground">Connected repositories</h2>
+<span class="text-xs text-muted font-mono">3</span>
+</div>
+<button class="text-[12px] text-muted hover:text-foreground transition-colors flex items-center gap-1" type="button">
+<span class="">Manage integrations</span>
+<span class="material-symbols-outlined text-[13px]">arrow_forward</span>
+</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+<!-- Card 1 -->
+<div class="p-4 rounded border border-border bg-surface hover:border-subtle transition-colors flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between gap-2 mb-2">
+<span class="font-mono text-[13px] font-medium text-foreground truncate">
+                    acme/payment-service
+                  </span>
+<span class="text-[10px] font-mono text-muted border border-border px-1.5 py-0.5 rounded">
+                    Public
+                  </span>
+</div>
+<p class="text-[12px] text-muted leading-relaxed line-clamp-2">
+                  PCI-DSS compliant payment processing engine, webhook dispatcher, and Stripe gateway orchestration.
+                </p>
+</div>
+<div class="mt-4 pt-3 border-t border-border flex items-center justify-between text-[11px] font-mono text-muted">
+<div class="flex items-center gap-3">
+<span class="">14 open issues</span>
+<span class="text-subtle">•</span>
+<span class="">22m ago</span>
+</div>
+<button class="text-white font-medium hover:text-accent transition-colors" type="button">
+                  Open
+                </button>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="p-4 rounded border border-border bg-surface hover:border-subtle transition-colors flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between gap-2 mb-2">
+<span class="font-mono text-[13px] font-medium text-foreground truncate">
+                    acme/auth-gateway
+                  </span>
+<span class="text-[10px] font-mono text-muted border border-border px-1.5 py-0.5 rounded">
+                    Private
+                  </span>
+</div>
+<p class="text-[12px] text-muted leading-relaxed line-clamp-2">
+                  Zero-trust IAM gateway, OAuth2 authentication brokering, and cross-region session synchronization.
+                </p>
+</div>
+<div class="mt-4 pt-3 border-t border-border flex items-center justify-between text-[11px] font-mono text-muted">
+<div class="flex items-center gap-3">
+<span class="">6 open issues</span>
+<span class="text-subtle">•</span>
+<span class="">3h ago</span>
+</div>
+<button class="text-white font-medium hover:text-accent transition-colors" type="button">
+                  Open
+                </button>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="p-4 rounded border border-border bg-surface hover:border-subtle transition-colors flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between gap-2 mb-2">
+<span class="font-mono text-[13px] font-medium text-foreground truncate">
+                    acme/event-broker
+                  </span>
+<span class="text-[10px] font-mono text-muted border border-border px-1.5 py-0.5 rounded">
+                    Private
+                  </span>
+</div>
+<p class="text-[12px] text-muted leading-relaxed line-clamp-2">
+                  Distributed message router, consumer group coordination, and dead letter event queue replayers.
+                </p>
+</div>
+<div class="mt-4 pt-3 border-t border-border flex items-center justify-between text-[11px] font-mono text-muted">
+<div class="flex items-center gap-3">
+<span class="">19 open issues</span>
+<span class="text-subtle">•</span>
+<span class="">1d ago</span>
+</div>
+<button class="text-white font-medium hover:text-accent transition-colors" type="button">
+                  Open
+                </button>
+</div>
+</div>
+</div>
+</section>
+<!-- Recent Investigations Section -->
+<section class="flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<h2 class="text-[14px] font-medium text-foreground">Recent investigations</h2>
+<span class="text-xs text-muted font-mono">4</span>
+</div>
+</div>
+<!-- Calm, Minimal Table -->
+<div class="w-full border border-border rounded overflow-hidden bg-surface">
+<table class="w-full text-left border-collapse min-w-[760px]">
+<thead>
+<tr class="border-b border-border bg-surface-raised/50 text-[11px] font-mono text-muted">
+<th class="py-2.5 px-4 font-normal">Repository &amp; Issue</th>
+<th class="py-2.5 px-4 font-normal">Title</th>
+<th class="py-2.5 px-4 font-normal">Status</th>
+<th class="py-2.5 px-4 font-normal">Model</th>
+<th class="py-2.5 px-4 font-normal text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-border text-[13px]">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-raised/40 transition-colors">
+<td class="py-3 px-4 font-mono text-[12px] whitespace-nowrap">
+<span class="text-foreground">acme/payment-service</span>
+<span class="text-muted ml-1 font-normal">#142</span>
+</td>
+<td class="py-3 px-4 text-foreground max-w-xs truncate font-normal">
+                    Retry logic causes duplicate payment attempts
+                  </td>
+<td class="py-3 px-4 whitespace-nowrap">
+<span class="font-mono text-[11px] px-1.5 py-0.5 rounded text-[#e0a84e] bg-[#e0a84e]/10 border border-[#e0a84e]/20">
+                      NEEDS_INFORMATION
+                    </span>
+</td>
+<td class="py-3 px-4 font-mono text-[12px] text-muted whitespace-nowrap">
+                    Claude 3.7 Sonnet
+                  </td>
+<td class="py-3 px-4 text-right whitespace-nowrap">
+<a class="text-[12px] text-muted hover:text-foreground font-normal transition-colors" href="#">
+                      View result
+                    </a>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-raised/40 transition-colors">
+<td class="py-3 px-4 font-mono text-[12px] whitespace-nowrap">
+<span class="text-foreground">acme/auth-gateway</span>
+<span class="text-muted ml-1 font-normal">#88</span>
+</td>
+<td class="py-3 px-4 text-foreground max-w-xs truncate font-normal">
+                    OAuth token revocation timeout on redis cluster failover
+                  </td>
+<td class="py-3 px-4 whitespace-nowrap">
+<span class="font-mono text-[11px] px-1.5 py-0.5 rounded text-[#4edea3] bg-[#4edea3]/10 border border-[#4edea3]/20">
+                      READY
+                    </span>
+</td>
+<td class="py-3 px-4 font-mono text-[12px] text-muted whitespace-nowrap">
+                    o3-mini
+                  </td>
+<td class="py-3 px-4 text-right whitespace-nowrap">
+<a class="text-[12px] text-muted hover:text-foreground font-normal transition-colors" href="#">
+                      View result
+                    </a>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-raised/40 transition-colors">
+<td class="py-3 px-4 font-mono text-[12px] whitespace-nowrap">
+<span class="text-foreground">acme/payment-service</span>
+<span class="text-muted ml-1 font-normal">#139</span>
+</td>
+<td class="py-3 px-4 text-foreground max-w-xs truncate font-normal">
+                    Webhook delivery fails on payload &gt; 1MB
+                  </td>
+<td class="py-3 px-4 whitespace-nowrap">
+<span class="font-mono text-[11px] px-1.5 py-0.5 rounded text-[#4edea3] bg-[#4edea3]/10 border border-[#4edea3]/20">
+                      READY
+                    </span>
+</td>
+<td class="py-3 px-4 font-mono text-[12px] text-muted whitespace-nowrap">
+                    Claude 3.5 Sonnet
+                  </td>
+<td class="py-3 px-4 text-right whitespace-nowrap">
+<a class="text-[12px] text-muted hover:text-foreground font-normal transition-colors" href="#">
+                      View result
+                    </a>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface-raised/40 transition-colors">
+<td class="py-3 px-4 font-mono text-[12px] whitespace-nowrap">
+<span class="text-foreground">acme/event-broker</span>
+<span class="text-muted ml-1 font-normal">#412</span>
+</td>
+<td class="py-3 px-4 text-foreground max-w-xs truncate font-normal">
+                    Consumer rebalance deadlocks during pod graceful shutdown
+                  </td>
+<td class="py-3 px-4 whitespace-nowrap">
+<span class="font-mono text-[11px] px-1.5 py-0.5 rounded text-[#e06c75] bg-[#e06c75]/10 border border-[#e06c75]/20">
+                      JOB_FAILED
+                    </span>
+</td>
+<td class="py-3 px-4 font-mono text-[12px] text-muted whitespace-nowrap">
+                    Claude 3.7 Sonnet
+                  </td>
+<td class="py-3 px-4 text-right whitespace-nowrap">
+<a class="text-[12px] text-muted hover:text-foreground font-normal transition-colors" href="#">
+                      View result
+                    </a>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</div>
+</main>
+</div>
+
+
+</body></html>

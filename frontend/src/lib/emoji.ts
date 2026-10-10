@@ -1,0 +1,100 @@
+// GitHub emoji shortcode rendering for repository descriptions.
+//
+// The backend stores GitHub's raw `description` string verbatim
+// (`internal/github/repos.go`, `internal/repos/repository.go`), so a
+// description may contain literal `:shortcode:` text (GitHub renders these as
+// emoji on its own pages but the API returns the raw text), raw Unicode emoji,
+// or plain text. React renders Unicode as-is; only recognized shortcodes need
+// conversion. Unknown `:codes:` are left untouched so they stay readable.
+const SHORTCODES: Record<string, string> = {
+  "+1": "👍",
+  "-1": "👎",
+  "100": "💯",
+  "8ball": "🎱",
+  airplane: "✈️",
+  alarm_clock: "⏰",
+  art: "🎨",
+  bell: "🔔",
+  bike: "🚲",
+  birthday: "🎂",
+  boat: "⛵",
+  book: "📖",
+  bookmark: "🔖",
+  books: "📚",
+  boom: "💥",
+  bug: "🐛",
+  building_construction: "🏗️",
+  bulb: "💡",
+  car: "🚗",
+  card_file_box: "🗃️",
+  chart_with_upwards_trend: "📈",
+  checkered_flag: "🏁",
+  children_crossing: "🚸",
+  clown_face: "🤡",
+  coffee: "☕",
+  confetti_ball: "🎊",
+  construction: "🚧",
+  controller: "🎮",
+  egg: "🥚",
+  fire: "🔥",
+  gem: "💎",
+  gift: "🎁",
+  globe_with_meridians: "🌐",
+  green_heart: "💚",
+  hammer: "🔨",
+  handshake: "🤝",
+  heart: "❤️",
+  helicopter: "🚁",
+  house: "🏠",
+  house_with_garden: "🏡",
+  husk: "🌾",
+  information_source: "ℹ️",
+  landmark: "🏛️",
+  lighthouse: "🪔",
+  lock: "🔒",
+  mag: "🔍",
+  memo: "📝",
+  moneybag: "💰",
+  musical_note: "🎵",
+  package: "📦",
+  paintbrush: "🖌️",
+  partying_face: "🥳",
+  pencil: "✏️",
+  pilot: "🧑‍✈️",
+  pine_tree: "🌲",
+  pizza: "🍕",
+  police_car_light: "🚨",
+  pushpin: "📌",
+  recycle: "♻️",
+  robot: "🤖",
+  rocket: "🚀",
+  screwdriver: "🪛",
+  see_no_evil: "🙈",
+  shield: "🛡️",
+  ship: "🚢",
+  sparkles: "✨",
+  star: "⭐",
+  tada: "🎉",
+  taxi: "🚕",
+  test_tube: "🧪",
+  tool: "🛠️",
+  tractor: "🚜",
+  traffic_light: "🚦",
+  train: "🚂",
+  truck: "🚚",
+  wave: "👋",
+  whale: "🐳",
+  wheelchair: "♿",
+  wrench: "🔧",
+  zap: "⚡",
+};
+
+const SHORTCODE_PATTERN = /:([a-z0-9_+-]+):/g;
+
+/** Replace recognized `:shortcode:` occurrences with Unicode emoji. */
+export function renderShortcodes(text: string): string {
+  return text.replace(SHORTCODE_PATTERN, (match, code: string) => {
+    const emoji = SHORTCODES[code];
+    return emoji ?? match;
+  });
+}

@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Geist", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --color-background: #080808;
+  --color-surface: #121212;
+  --color-raised: #161616;
+  --color-border: #222222;
+  --color-accent: #2f81f7;
+  --color-accent-hover: #266ed0;
+  --color-navactive: #1a2333;
+  --color-foreground: #f0f0f0;
+  --color-muted: #888888;
+  --color-subtle: #555555;
+}
+
+html {
+  font-family: var(--font-sans);
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--color-background);
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+
+::selection {
+  background-color: color-mix(in srgb, var(--color-accent) 20%, transparent);
+  color: #fff;
+}
+
+a {
+  color: inherit;
+}
