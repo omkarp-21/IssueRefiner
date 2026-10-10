@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="web_dashboard" name="shell-type"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+    @layer base {
+      html, body { margin: 0; padding: 0; background-color: #080808; }
+      body { overscroll-behavior: none; font-family: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif; }
+    }
+    ::-webkit-scrollbar { display: none; }
+  </style>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            background: "#080808",
+            surface: "#121212",
+            "surface-raised": "#161616",
+            border: "#222222",
+            accent: "#2f81f7",
+            "accent-hover": "#266ed0",
+            foreground: "#f0f0f0",
+            muted: "#888888",
+            subtle: "#555555"
+          },
+          fontFamily: {
+            sans: ["Geist", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
+            mono: ["JetBrains Mono", "monospace"]
+          }
+        }
+      }
+    };
+  </script>
+</head>
+<body class="bg-background text-foreground antialiased selection:bg-accent/20 selection:text-white">
+<!-- Sidebar -->
+<aside class="fixed left-0 top-0 h-full w-60 bg-surface border-r border-border z-50 flex flex-col justify-between select-none">
+<div class="flex flex-col">
+<!-- App Header & Workspace Switcher -->
+<div class="p-4 border-b border-border">
+<div class="flex items-center gap-2 mb-3">
+<div class="w-5 h-5 rounded bg-foreground flex items-center justify-center text-background">
+<span class="material-symbols-outlined text-[14px]">adjust</span>
+</div>
+<span class="font-medium text-[14px] text-foreground tracking-tight">Issue Refiner</span>
+</div>
+<button class="w-full flex items-center justify-between px-2.5 py-1.5 rounded border border-border bg-surface-raised hover:border-subtle transition-colors text-left" type="button">
+<div class="flex items-center gap-2 overflow-hidden">
+<span class="material-symbols-outlined text-muted text-[15px]">domain</span>
+<span class="font-mono text-[12px] text-foreground truncate">acme-corp</span>
+</div>
+<span class="material-symbols-outlined text-muted text-[15px]">unfold_more</span>
+</button>
+</div>
+<!-- Navigation -->
+<div class="px-3 py-4">
+<nav class="space-y-1">
+<a class="flex items-center gap-2.5 px-2.5 py-1.5 rounded text-[13px] font-medium bg-[#1a2333] text-accent transition-colors" href="#">
+<span class="material-symbols-outlined text-[17px]">grid_view</span>
+<span>Overview</span>
+</a>
+<a class="flex items-center gap-2.5 px-2.5 py-1.5 rounded text-[13px] text-muted hover:text-foreground hover:bg-surface-raised transition-colors" href="#">
+<span class="material-symbols-outlined text-[17px]">account_tree</span>
+<span>Repositories</span>
+</a>
+</nav>
+</div>
+</div>
+<!-- User Profile & Sign Out -->
+<div class="p-3 border-t border-border">
+<div class="px-2 py-2 flex items-center justify-between">
+<div class="flex items-center gap-2.5 min-w-0">
+<div class="w-7 h-7 rounded bg-surface-raised border border-border text-foreground font-mono text-[11px] font-medium flex items-center justify-center shrink-0">
+            AL
+          </div>
+<div class="flex flex-col min-w-0">
+<span class="text-[13px] text-foreground font-medium truncate leading-tight">Alex Liang</span>
+<span class="font-mono text-[11px] text-muted truncate">Staff Eng</span>
+</div>
+</div>
+<button aria-label="Sign out" class="text-muted hover:text-foreground p-1 transition-colors" title="Sign out" type="button">
+<span class="material-symbols-outlined text-[17px]">logout</span>
+</button>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<div class="pl-60">
+<!-- Top Header -->
+<header class="fixed top-0 left-60 right-0 h-13 bg-surface/80 backdrop-blur-md border-b border-border z-40 flex items-center justify-between px-6 select-none">
+<div class="flex items-center gap-2 text-[12px] font-mono text-muted">
+<span class="hover:text-foreground cursor-pointer transition-colors">Repositories</span>
+<span class="text-subtle">/</span>
+<span class="hover:text-foreground cursor-pointer transition-colors">acme/payment-service</span>
+<span class="text-subtle">/</span>
+<span class="text-foreground bg-surface-raised border border-border px-1.5 py-0.5 rounded">#142</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-1">
+<button aria-label="Search" class="w-7 h-7 rounded flex items-center justify-center text-muted hover:text-foreground hover:bg-surface-raised transition-colors" type="button">
+<span class="material-symbols-outlined text-[17px]">search</span>
+</button>
+<button aria-label="Notifications" class="w-7 h-7 rounded flex items-center justify-center text-muted hover:text-foreground hover:bg-surface-raised transition-colors" type="button">
+<span class="material-symbols-outlined text-[17px]">notifications</span>
+</button>
+</div>
+<div class="w-6 h-6 rounded-full bg-surface-raised border border-border flex items-center justify-center text-muted">
+<span class="material-symbols-outlined text-[15px]">person</span>
+</div>
+</div>
+</header>
+<main class="relative pt-13 min-h-screen"><div class="flex flex-col w-full">
+<!-- Ensure Shell Active Navigation Sync via Micro-script -->
+<script>
+    (function syncNavigationState() {
+      const aside = document.querySelector('aside');
+      if (!aside) return;
+      const navLinks = aside.querySelectorAll('nav a');
+      navLinks.forEach(link => {
+        const text = link.textContent.trim().toLowerCase();
+        if (text.includes('repositories')) {
+          link.className = 'flex items-center gap-2.5 px-2.5 py-1.5 rounded text-[13px] font-medium bg-[#1a2333] text-accent transition-colors';
+        } else if (text.includes('overview')) {
+          link.className = 'flex items-center gap-2.5 px-2.5 py-1.5 rounded text-[13px] text-muted hover:text-foreground hover:bg-surface-raised transition-colors';
+        }
+      });
+    })();
+  </script>
+<div class="max-w-[1280px] w-full mx-auto px-6 py-6 flex flex-col gap-6">
+<!-- Repository Identity Row -->
+<section class="flex flex-col md:flex-row md:items-start justify-between gap-4 pb-5 border-b border-[#222222]">
+<div class="flex flex-col gap-1.5 max-w-3xl">
+<div class="flex items-center gap-2.5">
+<span class="font-headline-md text-headline-md text-foreground font-medium tracking-tight">acme/payment-service</span>
+<span class="flex items-center gap-1 px-2 py-0.5 rounded bg-surface-raised border border-[#222222] font-label-mono-sm text-label-mono-sm text-muted">
+<span class="material-symbols-outlined text-[12px] text-muted">lock</span>
+            Private
+          </span>
+<span class="px-2 py-0.5 rounded bg-surface-raised border border-[#222222] font-label-mono-sm text-label-mono-sm text-muted">
+            main
+          </span>
+</div>
+<p class="font-body-md text-body-md text-muted leading-relaxed">
+          PCI-DSS compliant payment processing engine, webhook dispatcher, and Stripe gateway integration.
+        </p>
+</div>
+<div class="flex items-center gap-2 shrink-0 self-start">
+<button class="h-8 px-3 rounded bg-surface-raised border border-[#222222] hover:border-subtle hover:bg-[#181818] transition-colors flex items-center gap-1.5 font-body-sm text-body-sm text-foreground" type="button">
+<span class="material-symbols-outlined text-[15px] text-muted">tune</span>
+<span>Rule Config</span>
+</button>
+<button class="h-8 px-3 rounded bg-[#f0f0f0] text-[#080808] hover:opacity-90 transition-opacity font-body-sm text-body-sm font-medium flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[16px]">add</span>
+<span>New Investigation</span>
+</button>
+</div>
+</section>
+<!-- Issue Controls Bar -->
+<section class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+<!-- Search Box -->
+<div class="relative flex-1 max-w-md">
+<span class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-muted">
+<span class="material-symbols-outlined text-[16px]">search</span>
+</span>
+<input class="w-full h-8 pl-8 pr-8 rounded bg-[#0c0c0c] border border-[#222222] focus:border-accent focus:outline-none font-body-sm text-body-sm text-foreground placeholder:text-subtle transition-colors" id="issue-search-input" placeholder="Search issues by title or #number..." type="text"/>
+<div class="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
+<kbd class="h-4.5 px-1.5 rounded bg-surface-raised border border-[#222222] font-label-mono-sm text-label-mono-sm text-muted leading-none flex items-center justify-center">/</kbd>
+</div>
+</div>
+<!-- State Filter Tabs & Dropdowns -->
+<div class="flex items-center gap-3 shrink-0 flex-wrap">
+<div class="flex items-center p-0.5 rounded bg-[#0c0c0c] border border-[#222222]">
+<button class="flex items-center gap-1.5 px-2.5 py-1 rounded font-label-mono-sm text-label-mono-sm font-medium bg-surface-raised text-foreground transition-colors" id="tab-open" onclick="switchTab('open')" type="button">
+<span class="w-1.5 h-1.5 rounded-full bg-[#10b981]"></span>
+<span>Open</span>
+<span class="text-muted ml-0.5">14</span>
+</button>
+<button class="flex items-center gap-1.5 px-2.5 py-1 rounded font-label-mono-sm text-label-mono-sm font-medium text-muted hover:text-foreground transition-colors" id="tab-closed" onclick="switchTab('closed')" type="button">
+<span class="w-1.5 h-1.5 rounded-full bg-subtle"></span>
+<span>Closed</span>
+<span class="text-subtle ml-0.5">128</span>
+</button>
+</div>
+<div class="h-4 w-px bg-[#222222] hidden sm:block"></div>
+<!-- Filter Dropdowns -->
+<div class="flex items-center gap-2">
+<button class="h-8 px-2.5 rounded bg-surface border border-[#222222] hover:border-subtle transition-colors flex items-center gap-1.5 font-label-mono text-label-mono text-muted hover:text-foreground" type="button">
+<span>Label</span>
+<span class="material-symbols-outlined text-[14px]">expand_more</span>
+</button>
+<button class="h-8 px-2.5 rounded bg-surface border border-[#222222] hover:border-subtle transition-colors flex items-center gap-1.5 font-label-mono text-label-mono text-muted hover:text-foreground" type="button">
+<span class="text-subtle">Sort:</span>
+<span class="text-foreground">Newest</span>
+<span class="material-symbols-outlined text-[14px]">expand_more</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Issue Table -->
+<div class="rounded border border-[#222222] bg-surface overflow-hidden">
+<!-- Table Header -->
+<div class="grid grid-cols-12 gap-4 px-4 py-2.5 bg-[#0e0e0e] border-b border-[#222222] font-label-mono text-label-mono text-muted select-none">
+<div class="col-span-1"># ID</div>
+<div class="col-span-6 md:col-span-7">Title &amp; Context</div>
+<div class="col-span-2 hidden md:block">State</div>
+<div class="col-span-3 md:col-span-2 text-right">Updated / Action</div>
+</div>
+<!-- Issues List -->
+<div class="divide-y divide-[#222222]" id="issue-table-rows">
+<!-- Row 1: #142 -->
+<div class="issue-row group grid grid-cols-12 gap-4 px-4 py-3 items-center hover:bg-surface-raised transition-colors cursor-pointer" data-issue="142" data-state="open">
+<div class="col-span-1">
+<span class="font-label-mono text-label-mono text-accent">#142</span>
+</div>
+<div class="col-span-6 md:col-span-7 min-w-0 pr-2">
+<div class="flex items-center gap-2 flex-wrap">
+<a class="font-body-md text-body-md text-foreground font-medium group-hover:text-primary transition-colors truncate" href="#">
+                Retry logic causes duplicate payment attempts
+              </a>
+<div class="flex items-center gap-1.5 shrink-0">
+<span class="font-label-mono-sm text-label-mono-sm px-1.5 py-0.5 rounded bg-[#1f1616] text-[#ffb4ab] border border-[#3c2222]">bug</span>
+<span class="font-label-mono-sm text-label-mono-sm px-1.5 py-0.5 rounded bg-surface-raised text-muted border border-[#222222]">payments-core</span>
+</div>
+</div>
+<div class="text-[11px] font-mono text-subtle mt-0.5 flex items-center gap-2">
+<span>Updated 18m ago by <span class="text-muted">@m-chen</span></span>
+<span>·</span>
+<span class="text-muted">3 comments</span>
+</div>
+</div>
+<div class="col-span-2 hidden md:flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-[#10b981]"></span>
+<span class="font-label-mono text-label-mono text-muted">Open</span>
+</div>
+<div class="col-span-5 md:col-span-2 flex items-center justify-end gap-3">
+<a class="h-7 px-2.5 rounded bg-[#162234] border border-[#203a5c] text-primary hover:bg-[#1f304a] transition-colors font-label-mono text-label-mono flex items-center gap-1 shrink-0" href="#">
+<span class="material-symbols-outlined text-[13px]">assignment_turned_in</span>
+<span>View Brief</span>
+</a>
+</div>
+</div>
+<!-- Row 2: #140 -->
+<div class="issue-row group grid grid-cols-12 gap-4 px-4 py-3 items-center hover:bg-surface-raised transition-colors cursor-pointer" data-issue="140" data-state="open">
+<div class="col-span-1">
+<span class="font-label-mono text-label-mono text-accent">#140</span>
+</div>
+<div class="col-span-6 md:col-span-7 min-w-0 pr-2">
+<div class="flex items-center gap-2 flex-wrap">
+<a class="font-body-md text-body-md text-foreground font-medium group-hover:text-primary transition-colors truncate" href="#">
+                Stripe idempotency keys clash during rapid concurrency
+              </a>
+<div class="flex items-center gap-1.5 shrink-0">
+<span class="font-label-mono-sm text-label-mono-sm px-1.5 py-0.5 rounded bg-[#1f1616] text-[#ffb4ab] border border-[#3c2222]">bug</span>
+<span class="font-label-mono-sm text-label-mono-sm px-1.5 py-0.5 rounded bg-surface-raised text-muted border border-[#222222]">stripe-api</span>
+</div>
+</div>
+<div class="text-[11px] font-mono text-subtle mt-0.5 flex items-center gap-2">
+<span>Updated 2h ago by <span class="text-muted">@al-liang</span></span>
+<span>·</span>
+<span class="text-muted">7 comments</span>
+</div>
+</div>
+<div class="col-span-2 hidden md:flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-[#10b981]"></span>
+<span class="font-label-mono text-label-mono text-muted">Open</span>
+</div>
+<div class="col-span-5 md:col-span-2 flex items-center justify-end gap-3">
+<a class="h-7 px-2.5 rounded bg-[#162234] border border-[#203a5c] text-primary hover:bg-[#1f304a] transition-colors font-label-mono text-label-mono flex items-center gap-1 shrink-0" href="#">
+<span class="material-symbols-outlined text-[13px]">assignment_turned_in</span>
+<span>View Brief</span>
+</a>
+</div>
+</div>
+<!-- Row 3: #139 -->
+<div class="issue-row group grid grid-cols-12 gap-4 px-4 py-3 items-center hover:bg-surface-raised transition-colors cursor-pointer" data-issue="139" data-state="closed">
+<div class="col-span-1">
+<span class="font-label-mono text-label-mono text-muted">#139</span>
+</div>
+<div class="col-span-6 md:col-span-7 min-w-0 pr-2">
+<div class="flex items-center gap-2 flex-wrap">
+<a class="font-body-md text-body-md text-foreground font-medium group-hover:text-primary transition-colors truncate" href="#">
+                Webhook delivery fails on payload &gt; 1MB
+              </a>
+<div class="flex items-center gap-1.5 shrink-0">
+<span class="font-label-mono-sm text-label-mono-sm px-1.5 py-0.5 rounded bg-[#15231c] text-secondary border border-[#1f3a2c]">enhancement</span>
+<span class="font-label-mono-sm text-label-mono-sm px-1.5 py-0.5 rounded bg-surface-raised text-muted border border-[#222222]">webhooks</span>
+</div>
+</div>
+<div class="text-[11px] font-mono text-subtle mt-0.5 flex items-center gap-2">
+<span>Updated 1d ago</span>
+<span>·</span>
+<span class="text-muted">Resolved in PR #141</span>
+</div>
+</div>
+<div class="col-span-2 hidden md:flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-subtle"></span>
+<span class="font-label-mono text-label-mono text-muted">Closed</span>
+</div>
+<div class="col-span-5 md:col-span-2 flex items-center justify-end gap-3">
+<a class="h-7 px-2.5 rounded bg-surface-raised border border-[#222222] text-muted hover:text-foreground hover:border-subtle transition-colors font-label-mono text-label-mono flex items-center gap-1 shrink-0" href="#">
+<span class="material-symbols-outlined text-[13px]">visibility</span>
+<span>View Brief</span>
+</a>
+</div>
+</div>
+<!-- Row 4: #135 -->
+<div class="issue-row group grid grid-cols-12 gap-4 px-4 py-3 items-center hover:bg-surface-raised transition-colors cursor-pointer" data-issue="135" data-state="open">
+<div class="col-span-1">
+<span class="font-label-mono text-label-mono text-muted">#135</span>
+</div>
+<div class="col-span-6 md:col-span-7 min-w-0 pr-2">
+<div class="flex items-center gap-2 flex-wrap">
+<a class="font-body-md text-body-md text-foreground font-medium group-hover:text-primary transition-colors truncate" href="#">
+                Support SEPA direct debit refunds via automated batch
+              </a>
+<div class="flex items-center gap-1.5 shrink-0">
+<span class="font-label-mono-sm text-label-mono-sm px-1.5 py-0.5 rounded bg-surface-raised text-muted border border-[#222222]">feature-request</span>
+</div>
+</div>
+<div class="text-[11px] font-mono text-subtle mt-0.5 flex items-center gap-2">
+<span>Updated 3d ago</span>
+<span>·</span>
+<span class="text-muted">Unrefined</span>
+</div>
+</div>
+<div class="col-span-2 hidden md:flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-[#10b981]"></span>
+<span class="font-label-mono text-label-mono text-muted">Open</span>
+</div>
+<div class="col-span-5 md:col-span-2 flex items-center justify-end gap-3">
+<button class="h-7 px-2.5 rounded bg-surface-raised border border-[#222222] hover:border-accent hover:text-accent text-foreground transition-colors font-label-mono text-label-mono flex items-center gap-1 shrink-0" type="button">
+<span class="material-symbols-outlined text-[13px]">play_arrow</span>
+<span>Launch</span>
+</button>
+</div>
+</div>
+<!-- Row 5: #131 -->
+<div class="issue-row group grid grid-cols-12 gap-4 px-4 py-3 items-center hover:bg-surface-raised transition-colors cursor-pointer" data-issue="131" data-state="open">
+<div class="col-span-1">
+<span class="font-label-mono text-label-mono text-muted">#131</span>
+</div>
+<div class="col-span-6 md:col-span-7 min-w-0 pr-2">
+<div class="flex items-center gap-2 flex-wrap">
+<a class="font-body-md text-body-md text-foreground font-medium group-hover:text-primary transition-colors truncate" href="#">
+                TLS handshake timeout during bank webhook retries
+              </a>
+<div class="flex items-center gap-1.5 shrink-0">
+<span class="font-label-mono-sm text-label-mono-sm px-1.5 py-0.5 rounded bg-[#1f1616] text-[#ffb4ab] border border-[#3c2222]">bug</span>
+<span class="font-label-mono-sm text-label-mono-sm px-1.5 py-0.5 rounded bg-surface-raised text-muted border border-[#222222]">network</span>
+</div>
+</div>
+<div class="text-[11px] font-mono text-subtle mt-0.5 flex items-center gap-2">
+<span>Updated 5d ago</span>
+<span>·</span>
+<span class="text-muted">Unrefined</span>
+</div>
+</div>
+<div class="col-span-2 hidden md:flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-[#10b981]"></span>
+<span class="font-label-mono text-label-mono text-muted">Open</span>
+</div>
+<div class="col-span-5 md:col-span-2 flex items-center justify-end gap-3">
+<button class="h-7 px-2.5 rounded bg-surface-raised border border-[#222222] hover:border-accent hover:text-accent text-foreground transition-colors font-label-mono text-label-mono flex items-center gap-1 shrink-0" type="button">
+<span class="material-symbols-outlined text-[13px]">play_arrow</span>
+<span>Launch</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Keyboard Shortcuts Bar (Utilitarian Minimalist Footer) -->
+<footer class="mt-2 pt-3 pb-8 border-t border-[#222222] flex items-center justify-between text-subtle font-label-mono-sm text-label-mono-sm select-none">
+<div class="flex items-center gap-3">
+<span class="flex items-center gap-1.5">
+<kbd class="px-1 py-0.5 rounded bg-surface-raised border border-[#222222] text-muted font-mono text-[10px]">/</kbd>
+<span>to search</span>
+</span>
+<span>·</span>
+<span class="flex items-center gap-1.5">
+<kbd class="px-1 py-0.5 rounded bg-surface-raised border border-[#222222] text-muted font-mono text-[10px]">↑</kbd>
+<kbd class="px-1 py-0.5 rounded bg-surface-raised border border-[#222222] text-muted font-mono text-[10px]">↓</kbd>
+<span>to navigate</span>
+</span>
+<span>·</span>
+<span class="flex items-center gap-1.5">
+<kbd class="px-1 py-0.5 rounded bg-surface-raised border border-[#222222] text-muted font-mono text-[10px]">Enter</kbd>
+<span>to inspect</span>
+</span>
+</div>
+<div class="flex items-center gap-2 text-muted">
+<span>Issue Sync: Active</span>
+<span class="w-1.5 h-1.5 rounded-full bg-[#10b981]"></span>
+</div>
+</footer>
+</div>
+<!-- Interactive Search & Tab Script -->
+<script>
+    let activeState = 'open';
+
+    function switchTab(state) {
+      activeState = state;
+      const tabOpen = document.getElementById('tab-open');
+      const tabClosed = document.getElementById('tab-closed');
+      
+      if (state === 'open') {
+        tabOpen.className = 'flex items-center gap-1.5 px-2.5 py-1 rounded font-label-mono-sm text-label-mono-sm font-medium bg-surface-raised text-foreground transition-colors';
+        tabClosed.className = 'flex items-center gap-1.5 px-2.5 py-1 rounded font-label-mono-sm text-label-mono-sm font-medium text-muted hover:text-foreground transition-colors';
+      } else {
+        tabClosed.className = 'flex items-center gap-1.5 px-2.5 py-1 rounded font-label-mono-sm text-label-mono-sm font-medium bg-surface-raised text-foreground transition-colors';
+        tabOpen.className = 'flex items-center gap-1.5 px-2.5 py-1 rounded font-label-mono-sm text-label-mono-sm font-medium text-muted hover:text-foreground transition-colors';
+      }
+      filterRows();
+    }
+
+    function filterRows() {
+      const query = (document.getElementById('issue-search-input')?.value || '').toLowerCase().trim();
+      const rows = document.querySelectorAll('.issue-row');
+      rows.forEach(row => {
+        const state = row.getAttribute('data-state');
+        const text = row.textContent.toLowerCase();
+        const matchesQuery = !query || text.includes(query);
+        const matchesTab = activeState === 'all' || state === activeState || query.length > 0;
+        
+        if (matchesQuery && matchesTab) {
+          row.style.display = 'grid';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    }
+
+    document.getElementById('issue-search-input')?.addEventListener('input', filterRows);
+
+    // Keyboard shortcut '/' focus
+    window.addEventListener('keydown', (e) => {
+      if (e.key === '/' && document.activeElement?.tagName !== 'INPUT') {
+        e.preventDefault();
+        const input = document.getElementById('issue-search-input');
+        if (input) {
+          input.focus();
+          input.select();
+        }
+      }
+    });
+  </script>
+</div></main>
+</div>
+</body></html>

@@ -67,3 +67,27 @@
   - Import dialog backed by real `POST /api/repos/import` validating owner and repository, invalidating `["repos"]` query.
   - Cards navigate to the existing repository-detail route `/repositories/:id`.
   - Unsupported backend concepts omitted or grounded: open issue counts and language tags (not provided on `Repository` or `GET /api/repos`) omitted to avoid fabricating mock data; "Triage daemon" status in footer replaced with real `synced_at` database timestamp.
+
+## Repository Issues
+
+- Source HTML: `docs/design-references/issues/code.html`
+- Screenshot: `docs/design-references/issues/screen.png`
+- Design notes: `docs/design-references/issues/DESIGN.md` ("Monochrome Engineering")
+- Intended route: `/repositories/:id`
+- React implementation: `frontend/src/features/issues/RepositoryIssues.tsx` wired at route `/repositories/:id` in `frontend/src/App.tsx`.
+  - Rebuilt faithfully from `code.html` and `screen.png`:
+    - Back link to `/repositories`.
+    - Repository identity row with full name, Private/Public chip (with lock icon), default branch chip, and emoji-rendered description.
+    - Controls bar with `/` keyboard-shortcut search input, and segmented state filter tabs (`Open` with green dot and `Closed` with subtle dot).
+    - Issue table with headers (`# ID`, `Title & Context`, `State`, `Updated / Action`), issue row styling, label chips with color categorizations (`bug` coral, `enhancement` green, generic raised), author metadata, relative time update, state dot, and direct link to the GitHub issue.
+    - Pagination controls for multi-page issue browsing via `page` and `per_page=30`.
+    - Loading skeletons, empty state (0 issues for state), search empty state with "Clear search" CTA, and repository error/invalid ID states with back navigation.
+    - Footer with `/ to search` shortcut guide and `Issue Sync: Active` status.
+- Visually compared against reference: **yes** (2026-10-10).
+  - Rendered in headless Chromium at 1500×1000 and compared side-by-side with `screen.png`.
+  - Verified default loaded view with open issues, closed issues view, client search filtering matching specific issue numbers/titles, empty state, and error handling for invalid repository IDs.
+- Backend mapping & boundaries:
+  - Repository fetched via `GET /api/repos/:id` returning `{ repository: Repository }`.
+  - Issues fetched via `GET /api/repos/:id/issues?state=${state}&page=${page}&per_page=30` returning `{ issues: Issue[], page: number, per_page: number }`.
+  - Casing resilience: `Issue` type supports both Go's standard field serialization (PascalCase) and potential snake_case formatting.
+  - Unsupported actions omitted: "Rule Config" and "New Investigation" on the repo level, and "Launch" / "View Brief" on issues (investigation flow remains an independent bounded workflow per specification; action column links directly to the real GitHub issue via `HTMLURL`).

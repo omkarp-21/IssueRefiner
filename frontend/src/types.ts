@@ -37,6 +37,37 @@ export interface ReposResponse {
   repositories: Repository[];
 }
 
+export interface RepoResponse {
+  repository: Repository;
+}
+
+export interface Issue {
+  Number?: number;
+  number?: number;
+  Title?: string;
+  title?: string;
+  Body?: string;
+  body?: string;
+  State?: string;
+  state?: string;
+  Author?: string;
+  author?: string;
+  Labels?: string[];
+  labels?: string[];
+  CreatedAt?: string;
+  created_at?: string;
+  UpdatedAt?: string;
+  updated_at?: string;
+  HTMLURL?: string;
+  html_url?: string;
+}
+
+export interface IssuesResponse {
+  issues: Issue[];
+  page: number;
+  per_page: number;
+}
+
 export interface ApiError {
   error: string;
 }

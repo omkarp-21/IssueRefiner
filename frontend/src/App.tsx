@@ -5,6 +5,7 @@ import { AuthProvider, useAuth } from "./features/auth/AuthContext";
 import Login from "./features/auth/Login";
 import Overview from "./features/repositories/Overview";
 import Repositories from "./features/repositories/Repositories";
+import RepositoryIssues from "./features/issues/RepositoryIssues";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -50,7 +51,7 @@ export default function App() {
             >
               <Route index element={<Overview />} />
               <Route path="repositories" element={<Repositories />} />
-              <Route path="repositories/:id" element={<Overview />} />
+              <Route path="repositories/:id" element={<RepositoryIssues />} />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
