@@ -1,0 +1,413 @@
+<!DOCTYPE html><html class="dark" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Issue Refiner - Repositories</title>
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "error-container": "#93000a",
+            "surface-container-low": "#1c1b1b",
+            "surface-container-lowest": "#0e0e0e",
+            "on-tertiary-fixed": "#321300",
+            "surface-container": "#201f1f",
+            "on-primary-fixed": "#001a40",
+            "primary-fixed": "#d7e2ff",
+            "inverse-primary": "#005bbf",
+            "on-tertiary-container": "#481e00",
+            "secondary-fixed": "#6ffbbe",
+            "inverse-surface": "#e5e2e1",
+            "surface-bright": "#3a3939",
+            "primary-fixed-dim": "#acc7ff",
+            "on-error-container": "#ffdad6",
+            "inverse-on-surface": "#313030",
+            "surface": "#131313",
+            "on-secondary-container": "#00311f",
+            "on-secondary-fixed-variant": "#005236",
+            "primary-container": "#498fff",
+            "surface-variant": "#353534",
+            "on-surface": "#e5e2e1",
+            "surface-dim": "#131313",
+            "secondary-container": "#00a572",
+            "primary": "#acc7ff",
+            "surface-tint": "#acc7ff",
+            "on-background": "#e5e2e1",
+            "tertiary-fixed": "#ffdbc8",
+            "outline": "#8b909f",
+            "on-primary-container": "#00285b",
+            "secondary-fixed-dim": "#4edea3",
+            "on-primary": "#002f68",
+            "outline-variant": "#414754",
+            "tertiary-container": "#e47014",
+            "on-error": "#690005",
+            "surface-container-high": "#2a2a2a",
+            "surface-container-highest": "#353534",
+            "tertiary": "#ffb68b",
+            "secondary": "#4edea3",
+            "background": "#131313",
+            "on-tertiary": "#522300",
+            "on-secondary": "#003824",
+            "on-secondary-fixed": "#002113",
+            "on-surface-variant": "#c1c6d6",
+            "error": "#ffb4ab",
+            "tertiary-fixed-dim": "#ffb68b",
+            "on-tertiary-fixed-variant": "#753400",
+            "on-primary-fixed-variant": "#004492"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "fontFamily": {
+            "body-md": ["Geist", "sans-serif"],
+            "label-mono": ["JetBrains Mono", "monospace"],
+            "headline-lg": ["Geist", "sans-serif"],
+            "headline-xl": ["Geist", "sans-serif"],
+            "headline-lg-mobile": ["Geist", "sans-serif"],
+            "body-lg": ["Geist", "sans-serif"],
+            "headline-md": ["Geist", "sans-serif"],
+            "headline-xl-mobile": ["Geist", "sans-serif"],
+            "body-sm": ["Geist", "sans-serif"],
+            "label-mono-sm": ["JetBrains Mono", "monospace"]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-family: 'Material Symbols Outlined';
+      font-weight: normal;
+      font-style: normal;
+      font-size: 20px;
+      line-height: 1;
+      letter-spacing: normal;
+      text-transform: none;
+      display: inline-block;
+      white-space: nowrap;
+      word-wrap: normal;
+      direction: ltr;
+      -webkit-font-feature-settings: 'liga';
+      -webkit-font-smoothing: antialiased;
+    }
+  </style>
+</head>
+<body class="bg-background text-on-surface antialiased font-body-md min-h-screen flex selection:bg-primary selection:text-on-primary">
+<!-- Persistent Left Sidebar -->
+<aside class="w-64 border-r border-[#262626] bg-[#161616] flex flex-col justify-between shrink-0 select-none min-h-screen">
+<div class="flex flex-col">
+<!-- Workspace Brand Anchor -->
+<div class="flex items-center gap-3 px-5 py-4 border-b border-outline-variant/50">
+<div class="size-8 rounded bg-surface-container-high border border-outline-variant flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary text-[18px]">terminal</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="text-on-surface text-sm font-medium leading-none truncate">Issue Refiner</span>
+<span class="text-outline text-body-sm font-label-mono truncate mt-1">acme-corp</span>
+</div>
+</div>
+<!-- Navigation List -->
+<nav class="flex flex-col gap-1 p-3">
+<a class="flex items-center gap-3 px-3 py-2 rounded text-outline hover:text-on-surface hover:bg-surface-container-low transition-colors duration-150 text-body-md font-medium" href="#">
+<span class="material-symbols-outlined text-outline" data-icon="dashboard">dashboard</span>
+<span class="">Overview</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded bg-surface-container-high text-on-surface border border-outline-variant/60 font-medium text-body-md transition-colors duration-150" href="#">
+<span class="material-symbols-outlined text-primary" data-icon="account_tree">account_tree</span>
+<span class="">Repositories</span>
+</a>
+</nav>
+</div>
+<!-- User Profile Footer -->
+<div class="p-3 border-t border-outline-variant/50">
+<div class="flex items-center justify-between px-2.5 py-2 rounded hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-2.5 min-w-0">
+<div class="size-7 rounded bg-surface-container-high border border-outline-variant flex items-center justify-center font-label-mono text-body-sm font-medium text-on-surface shrink-0">
+            AL
+          </div>
+<div class="flex flex-col min-w-0">
+<span class="text-on-surface text-body-sm font-medium leading-tight truncate">Alex Liang</span>
+<span class="text-outline font-label-mono text-[11px] leading-tight truncate">Staff Eng</span>
+</div>
+</div>
+<button aria-label="Sign out" class="text-outline hover:text-on-surface p-1 rounded transition-colors ml-1" type="button">
+<span class="material-symbols-outlined text-[18px]" data-icon="logout">logout</span>
+</button>
+</div>
+</div>
+</aside>
+<!-- Main Content Shell -->
+<main class="flex-1 flex flex-col min-w-0 bg-[#0a0a0a]">
+<!-- Clean Minimal Breadcrumb Header -->
+<header class="h-14 border-b border-[#222222] bg-[#0a0a0a]/80 backdrop-blur-sm px-8 flex items-center justify-between shrink-0">
+<div class="flex items-center gap-2 text-body-sm">
+<span class="text-outline">acme-corp</span>
+<span class="text-outline-variant">/</span>
+<span class="text-on-surface font-medium">Repositories</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-surface-container-low border border-outline-variant/60 text-outline text-label-mono-sm">
+<span class="">Triage daemon: active</span>
+<span class="inline-block size-1.5 rounded-full bg-secondary"></span>
+</div>
+</div>
+</header>
+<!-- Page Body Area -->
+<div class="flex-1 px-8 py-8 max-w-6xl w-full mx-auto flex flex-col">
+<!-- Title & Action Bar -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-6 border-b border-outline-variant/40">
+<div>
+<h1 class="text-on-surface text-headline-md font-medium tracking-tight">Repositories</h1>
+<p class="text-outline text-body-md mt-1">Connected repositories available for AI issue triage and investigation.</p>
+</div>
+<div>
+<button class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded bg-inverse-primary hover:bg-primary-container text-white font-medium text-body-sm border border-transparent shadow-sm transition-colors duration-150 cursor-pointer" type="button">
+<span class="material-symbols-outlined text-[18px]" data-icon="add">add</span>
+<span class="">Import repository</span>
+</button>
+</div>
+</div>
+<!-- Controls: Filter & Counter Segment -->
+<div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-6 pb-5">
+<div class="relative flex-1 max-w-md">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-outline">
+<span class="material-symbols-outlined text-[18px]" data-icon="search">search</span>
+</div>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded pl-9 pr-14 py-1.5 text-body-sm text-on-surface placeholder:text-outline focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary font-body-md transition-colors" placeholder="Filter connected repositories..." type="text">
+<div class="absolute inset-y-0 right-0 pr-2.5 flex items-center pointer-events-none">
+<kbd class="px-1.5 py-0.5 rounded bg-surface-container-highest border border-outline-variant text-[10px] font-label-mono text-outline">⌘K</kbd>
+</div>
+</div>
+<div class="flex items-center gap-1.5 self-end sm:self-auto text-body-sm font-label-mono text-outline">
+<span class="">4 connected</span>
+</div>
+</div>
+<!-- Repositories List Cards -->
+<div class="flex flex-col gap-4">
+<!-- Card 1: acme/payment-service -->
+<article class="p-5 sm:p-6 rounded-lg border border-[#2a2a2a] bg-[#161616] hover:border-[#3e3e3e] hover:bg-[#1a1a1a] transition-all duration-150 flex flex-col justify-between gap-4">
+  <div class="flex flex-col md:flex-row md:items-start justify-between gap-3">
+    <div class="flex items-start gap-3 min-w-0">
+      <div class="size-8 rounded bg-[#202020] border border-[#2f2f2f] flex items-center justify-center shrink-0 mt-0.5 text-[#acc7ff]">
+        <span class="material-symbols-outlined text-[18px]">code</span>
+      </div>
+      <div class="flex flex-col min-w-0">
+        <div class="flex items-center gap-2.5 flex-wrap">
+          <a class="font-label-mono text-base font-semibold text-white hover:text-primary transition-colors truncate" href="#">
+            acme/payment-service
+          </a>
+          <span class="px-2 py-0.5 rounded text-xs font-label-mono bg-[#222222] text-[#8c8c8c] border border-[#333333]">
+            Public
+          </span>
+          <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-label-mono bg-[#1c1c1c] text-[#8c8c8c] border border-[#2b2b2b]">
+            <span class="material-symbols-outlined text-[13px] text-outline">alt_route</span>
+            main
+          </span>
+        </div>
+        <p class="text-sm text-[#a0a0a0] mt-2 mb-1 leading-relaxed max-w-3xl">
+          PCI-DSS compliant payment processing engine, webhook dispatcher, and Stripe gateway integration.
+        </p>
+      </div>
+    </div>
+    <div class="flex items-center self-start md:self-start shrink-0 pt-0.5">
+      <a class="px-3.5 py-1.5 rounded bg-[#222222] hover:bg-[#2a2a2a] text-[#ededed] border border-[#333333] hover:border-[#444444] text-xs font-medium transition-colors inline-flex items-center gap-1.5 cursor-pointer" href="#">
+        <span class="">Open</span>
+        <span class="material-symbols-outlined text-[14px] text-outline">arrow_forward</span>
+      </a>
+    </div>
+  </div>
+  <div class="pt-3 border-t border-[#222222] flex flex-wrap items-center justify-between gap-y-2 gap-x-4 text-xs font-label-mono text-outline">
+    <div class="flex items-center gap-3.5 flex-wrap">
+      <div class="flex items-center gap-1.5 text-on-surface font-medium">
+        <span class="inline-block size-1.5 rounded-full bg-primary"></span>
+        <span class="">14 open issues</span>
+      </div>
+      <span class="text-[#333333]">·</span>
+      <div class="flex items-center gap-1.5 text-[#9a9a9a]">
+        <span class="inline-block size-2 rounded-full bg-[#00add8]"></span>
+        <span class="">Go</span>
+      </div>
+      <span class="text-[#333333]">·</span>
+      <span class="text-[#808080]">Updated 22m ago</span>
+    </div>
+    <div class="flex items-center gap-1.5 text-[#808080]">
+      <span class="material-symbols-outlined text-[14px] text-secondary">check_circle</span>
+      <span class="">Triage daemon synced</span>
+    </div>
+  </div>
+</article>
+
+<!-- Card 2: acme/auth-gateway -->
+<article class="p-5 sm:p-6 rounded-lg border border-[#2a2a2a] bg-[#161616] hover:border-[#3e3e3e] hover:bg-[#1a1a1a] transition-all duration-150 flex flex-col justify-between gap-4">
+  <div class="flex flex-col md:flex-row md:items-start justify-between gap-3">
+    <div class="flex items-start gap-3 min-w-0">
+      <div class="size-8 rounded bg-[#202020] border border-[#2f2f2f] flex items-center justify-center shrink-0 mt-0.5 text-[#acc7ff]">
+        <span class="material-symbols-outlined text-[18px]">lock</span>
+      </div>
+      <div class="flex flex-col min-w-0">
+        <div class="flex items-center gap-2.5 flex-wrap">
+          <a class="font-label-mono text-base font-semibold text-white hover:text-primary transition-colors truncate" href="#">
+            acme/auth-gateway
+          </a>
+          <span class="px-2 py-0.5 rounded text-xs font-label-mono bg-[#222222] text-[#8c8c8c] border border-[#333333]">
+            Private
+          </span>
+          <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-label-mono bg-[#1c1c1c] text-[#8c8c8c] border border-[#2b2b2b]">
+            <span class="material-symbols-outlined text-[13px] text-outline">alt_route</span>
+            main
+          </span>
+        </div>
+        <p class="text-sm text-[#a0a0a0] mt-2 mb-1 leading-relaxed max-w-3xl">
+          Zero-trust IAM gateway, OAuth2 authentication brokering, and cross-region session state synchronization.
+        </p>
+      </div>
+    </div>
+    <div class="flex items-center self-start md:self-start shrink-0 pt-0.5">
+      <a class="px-3.5 py-1.5 rounded bg-[#222222] hover:bg-[#2a2a2a] text-[#ededed] border border-[#333333] hover:border-[#444444] text-xs font-medium transition-colors inline-flex items-center gap-1.5 cursor-pointer" href="#">
+        <span class="">Open</span>
+        <span class="material-symbols-outlined text-[14px] text-outline">arrow_forward</span>
+      </a>
+    </div>
+  </div>
+  <div class="pt-3 border-t border-[#222222] flex flex-wrap items-center justify-between gap-y-2 gap-x-4 text-xs font-label-mono text-outline">
+    <div class="flex items-center gap-3.5 flex-wrap">
+      <div class="flex items-center gap-1.5 text-on-surface font-medium">
+        <span class="inline-block size-1.5 rounded-full bg-primary"></span>
+        <span class="">6 open issues</span>
+      </div>
+      <span class="text-[#333333]">·</span>
+      <div class="flex items-center gap-1.5 text-[#9a9a9a]">
+        <span class="inline-block size-2 rounded-full bg-[#3178c6]"></span>
+        <span class="">TypeScript</span>
+      </div>
+      <span class="text-[#333333]">·</span>
+      <span class="text-[#808080]">Updated 3h ago</span>
+    </div>
+    <div class="flex items-center gap-1.5 text-[#808080]">
+      <span class="material-symbols-outlined text-[14px] text-secondary">check_circle</span>
+      <span class="">Triage daemon synced</span>
+    </div>
+  </div>
+</article>
+
+<!-- Card 3: acme/event-broker -->
+<article class="p-5 sm:p-6 rounded-lg border border-[#2a2a2a] bg-[#161616] hover:border-[#3e3e3e] hover:bg-[#1a1a1a] transition-all duration-150 flex flex-col justify-between gap-4">
+  <div class="flex flex-col md:flex-row md:items-start justify-between gap-3">
+    <div class="flex items-start gap-3 min-w-0">
+      <div class="size-8 rounded bg-[#202020] border border-[#2f2f2f] flex items-center justify-center shrink-0 mt-0.5 text-[#acc7ff]">
+        <span class="material-symbols-outlined text-[18px]">hub</span>
+      </div>
+      <div class="flex flex-col min-w-0">
+        <div class="flex items-center gap-2.5 flex-wrap">
+          <a class="font-label-mono text-base font-semibold text-white hover:text-primary transition-colors truncate" href="#">
+            acme/event-broker
+          </a>
+          <span class="px-2 py-0.5 rounded text-xs font-label-mono bg-[#222222] text-[#8c8c8c] border border-[#333333]">
+            Private
+          </span>
+          <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-label-mono bg-[#1c1c1c] text-[#8c8c8c] border border-[#2b2b2b]">
+            <span class="material-symbols-outlined text-[13px] text-outline">alt_route</span>
+            main
+          </span>
+        </div>
+        <p class="text-sm text-[#a0a0a0] mt-2 mb-1 leading-relaxed max-w-3xl">
+          Distributed message router, consumer group coordination, and dead letter event queue replays.
+        </p>
+      </div>
+    </div>
+    <div class="flex items-center self-start md:self-start shrink-0 pt-0.5">
+      <a class="px-3.5 py-1.5 rounded bg-[#222222] hover:bg-[#2a2a2a] text-[#ededed] border border-[#333333] hover:border-[#444444] text-xs font-medium transition-colors inline-flex items-center gap-1.5 cursor-pointer" href="#">
+        <span class="">Open</span>
+        <span class="material-symbols-outlined text-[14px] text-outline">arrow_forward</span>
+      </a>
+    </div>
+  </div>
+  <div class="pt-3 border-t border-[#222222] flex flex-wrap items-center justify-between gap-y-2 gap-x-4 text-xs font-label-mono text-outline">
+    <div class="flex items-center gap-3.5 flex-wrap">
+      <div class="flex items-center gap-1.5 text-on-surface font-medium">
+        <span class="inline-block size-1.5 rounded-full bg-primary"></span>
+        <span class="">19 open issues</span>
+      </div>
+      <span class="text-[#333333]">·</span>
+      <div class="flex items-center gap-1.5 text-[#9a9a9a]">
+        <span class="inline-block size-2 rounded-full bg-[#dea584]"></span>
+        <span class="">Rust</span>
+      </div>
+      <span class="text-[#333333]">·</span>
+      <span class="text-[#808080]">Updated 1d ago</span>
+    </div>
+    <div class="flex items-center gap-1.5 text-[#808080]">
+      <span class="material-symbols-outlined text-[14px] text-secondary">check_circle</span>
+      <span class="">Triage daemon synced</span>
+    </div>
+  </div>
+</article>
+
+<!-- Card 4: acme/notification-service -->
+<article class="p-5 sm:p-6 rounded-lg border border-[#2a2a2a] bg-[#161616] hover:border-[#3e3e3e] hover:bg-[#1a1a1a] transition-all duration-150 flex flex-col justify-between gap-4">
+  <div class="flex flex-col md:flex-row md:items-start justify-between gap-3">
+    <div class="flex items-start gap-3 min-w-0">
+      <div class="size-8 rounded bg-[#202020] border border-[#2f2f2f] flex items-center justify-center shrink-0 mt-0.5 text-[#acc7ff]">
+        <span class="material-symbols-outlined text-[18px]">notifications</span>
+      </div>
+      <div class="flex flex-col min-w-0">
+        <div class="flex items-center gap-2.5 flex-wrap">
+          <a class="font-label-mono text-base font-semibold text-white hover:text-primary transition-colors truncate" href="#">
+            acme/notification-service
+          </a>
+          <span class="px-2 py-0.5 rounded text-xs font-label-mono bg-[#222222] text-[#8c8c8c] border border-[#333333]">
+            Private
+          </span>
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-label-mono bg-secondary/10 text-secondary border border-secondary/20">
+            <span class="inline-block size-1.5 rounded-full bg-secondary animate-pulse"></span>
+            Recently synced
+          </span>
+        </div>
+        <p class="text-sm text-[#a0a0a0] mt-2 mb-1 leading-relaxed max-w-3xl">
+          Multi-channel delivery daemon for transactional SMS, push notifications, and webhook retries.
+        </p>
+      </div>
+    </div>
+    <div class="flex items-center self-start md:self-start shrink-0 pt-0.5">
+      <a class="px-3.5 py-1.5 rounded bg-[#222222] hover:bg-[#2a2a2a] text-[#ededed] border border-[#333333] hover:border-[#444444] text-xs font-medium transition-colors inline-flex items-center gap-1.5 cursor-pointer" href="#">
+        <span class="">Open</span>
+        <span class="material-symbols-outlined text-[14px] text-outline">arrow_forward</span>
+      </a>
+    </div>
+  </div>
+  <div class="pt-3 border-t border-[#222222] flex flex-wrap items-center justify-between gap-y-2 gap-x-4 text-xs font-label-mono text-outline">
+    <div class="flex items-center gap-3.5 flex-wrap">
+      <div class="flex items-center gap-1.5 text-on-surface font-medium">
+        <span class="inline-block size-1.5 rounded-full bg-primary"></span>
+        <span class="">8 open issues</span>
+      </div>
+      <span class="text-[#333333]">·</span>
+      <div class="flex items-center gap-1.5 text-[#9a9a9a]">
+        <span class="inline-block size-2 rounded-full bg-[#3572a5]"></span>
+        <span class="">Python</span>
+      </div>
+      <span class="text-[#333333]">·</span>
+      <span class="text-secondary font-medium">Just now</span>
+    </div>
+    <div class="flex items-center gap-1.5 text-[#808080]">
+      <span class="material-symbols-outlined text-[14px] text-secondary">check_circle</span>
+      <span class="">Triage daemon active</span>
+    </div>
+  </div>
+</article>
+</div>
+</div>
+</main>
+
+
+</body></html>

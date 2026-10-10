@@ -47,3 +47,23 @@
     `POST /api/repos/import`.
   - Unknowns carried over: `Open` / `View result` destinations for future
     screens (card "Open" currently links to the repo's GitHub `html_url`).
+
+## Repositories
+
+- Source HTML: `docs/design-references/repositories/code.html`
+- Screenshot: `docs/design-references/repositories/screen.png`
+- Design notes: None provided in export (`DESIGN.md` intentionally omitted; requirements derived from `code.html` and `screen.png`).
+- Intended route: `/repositories`
+- React implementation: `frontend/src/features/repositories/Repositories.tsx` wired at route `/repositories` in `frontend/src/App.tsx`.
+  - Rebuilt faithfully from `code.html` and `screen.png`: title, subtitle, "Import repository" action button, filter input with search icon and `⌘K` badge, dynamic connected counter, and full-width card list layout.
+  - Card elements: Code/Lock icon in `#202020` surface with `#acc7ff` tint, repository full name with hover highlight linking to `/repositories/:id`, Public/Private mono pill, git branch pill with branch icon, markdown/emoji rendered description, "Open" button linking to `/repositories/:id`, card footer with `Updated <time>` and `Synced <time>` with green check circle.
+  - Loading skeleton state matching card geometries, error state with human-friendly message, empty state for 0 repositories, and no-search-results state with clear filter button.
+  - Inline outline SVG icons in `frontend/src/components/icons.tsx` (`CodeIcon`, `LockIcon`, `BranchIcon`, `CheckCircleIcon`, `ArrowRightIcon`) matching Material Symbols Outlined without external webfont dependency.
+- Visually compared against reference: **yes** (2026-10-10).
+  - Rendered in headless Chromium at 1500×1000 and compared side-by-side with `screen.png`.
+  - Verified default loaded state with connected repos, filter search matching "auth", non-matching filter search "xyz" empty state, zero-repos connected empty state, API error state, and import dialog modal overlay.
+- Backend mapping & boundaries:
+  - Backed by `GET /api/repos` returning `{ repositories: Repository[] }`.
+  - Import dialog backed by real `POST /api/repos/import` validating owner and repository, invalidating `["repos"]` query.
+  - Cards navigate to the existing repository-detail route `/repositories/:id`.
+  - Unsupported backend concepts omitted or grounded: open issue counts and language tags (not provided on `Repository` or `GET /api/repos`) omitted to avoid fabricating mock data; "Triage daemon" status in footer replaced with real `synced_at` database timestamp.

@@ -4,6 +4,7 @@ import Shell from "./components/layout/Shell";
 import { AuthProvider, useAuth } from "./features/auth/AuthContext";
 import Login from "./features/auth/Login";
 import Overview from "./features/repositories/Overview";
+import Repositories from "./features/repositories/Repositories";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -48,7 +49,7 @@ export default function App() {
               }
             >
               <Route index element={<Overview />} />
-              <Route path="repositories" element={<Overview />} />
+              <Route path="repositories" element={<Repositories />} />
               <Route path="repositories/:id" element={<Overview />} />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
