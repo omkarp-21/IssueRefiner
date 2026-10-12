@@ -6,6 +6,7 @@ import Login from "./features/auth/Login";
 import Overview from "./features/repositories/Overview";
 import Repositories from "./features/repositories/Repositories";
 import RepositoryIssues from "./features/issues/RepositoryIssues";
+import InvestigationDetail from "./features/investigations/InvestigationDetail";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -52,6 +53,7 @@ export default function App() {
               <Route index element={<Overview />} />
               <Route path="repositories" element={<Repositories />} />
               <Route path="repositories/:id" element={<RepositoryIssues />} />
+              <Route path="investigations/:investigationId" element={<InvestigationDetail />} />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

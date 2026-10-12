@@ -91,3 +91,40 @@
   - Issues fetched via `GET /api/repos/:id/issues?state=${state}&page=${page}&per_page=30` returning `{ issues: Issue[], page: number, per_page: number }`.
   - Casing resilience: `Issue` type supports both Go's standard field serialization (PascalCase) and potential snake_case formatting.
   - Unsupported actions omitted: "Rule Config" and "New Investigation" on the repo level, and "Launch" / "View Brief" on issues (investigation flow remains an independent bounded workflow per specification; action column links directly to the real GitHub issue via `HTMLURL`).
+
+## Investigation Detail
+
+- Source HTML: `docs/design-references/investigation/code.html`
+- Screenshot: `docs/design-references/investigation/screen.png`
+- Design notes: `docs/design-references/investigation/DESIGN.md` ("Monochrome Engineering"); `code.html` governs on conflicts.
+- Intended route: `/investigations/:investigationId` (deep-linkable, refresh-safe).
+- React implementation: `frontend/src/features/investigations/InvestigationDetail.tsx`
+  (+ `result.ts` parser, `useJobPoll.ts` shared hook) wired in `frontend/src/App.tsx`.
+  - Data from `GET /api/jobs/:id` (`{job, repository|null}`); `job.result`
+    parsed as a JSON string with backend-mirroring validation (malformed →
+    controlled invalid state, never raw JSON as primary UI).
+  - Renders summary, readiness badge, missing-information list, ranked
+    hypothesis cards (confidence, evidence pills, reasoning details),
+    collapsible signals, observed/expected/environment context, reproduction
+    steps, collapsed issue snapshot, per-issue run history with current-run
+    marker and cross-navigation, and an evidence panel (references only —
+    no invented excerpts or interpretations).
+  - Real workflows only: request-information draft/post modal and
+    re-investigate dialog (provider picker), both gated to
+    done + NEEDS_INFORMATION as the backend requires. No excerpt
+    fabrication, durations, scores, or vendor-name mappings.
+  - Mock-provider jobs show a dashed "mock provider · dev data" badge.
+- Visually compared against reference: **yes, with caveats** (2026-10-12).
+  Headless Chromium vs `screen.png`: hierarchy, badges, hypothesis cards,
+  drawer, and history match; mock-labeled data used throughout. Covers
+  done/queued/failed/malformed/empty/404 states, polling transition,
+  refresh, and 500px narrow layout (drawer becomes on-demand overlay).
+- Backend mapping & boundaries:
+  - Polling reuses the shared `useJobPoll` hook (3s, stops at terminal
+    states); `RepositoryIssues.tsx` imports it (no competing poller).
+  - Deliberately omitted vs Stitch (no backend support): breadcrumb repo
+    trail beyond the back link, "Synced" pill, priority labels, execution
+    durations, comment excerpts/authors in the drawer, "Insert citation",
+    label-application checkbox on the request modal.
+  - Not built (out of scope): global investigation history/listing endpoint,
+    sidebar nav item, provider/workspace settings.

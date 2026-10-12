@@ -32,8 +32,8 @@ func (stub stubGitHub) ListContributors(ctx context.Context, token string, owner
 	return nil, stub.err
 }
 
-func (stub stubGitHub) ListIssues(ctx context.Context, token string, owner string, repo string, state string, page int, perPage int) ([]github.Issue, error) {
-	return nil, stub.err
+func (stub stubGitHub) ListIssues(ctx context.Context, token string, owner string, repo string, state string, page int, perPage int, query string) ([]github.Issue, bool, error) {
+	return nil, false, stub.err
 }
 
 func (stub stubGitHub) GetIssue(ctx context.Context, token string, owner string, repo string, issueNumber int) (*github.Issue, error) {
@@ -75,6 +75,28 @@ func TestNormalizePage(t *testing.T) {
 	_, perPage = NormalizePage(1, 500)
 	if perPage != 100 {
 		t.Fatalf("expected per_page clamped to 100, got %d", perPage)
+	}
+}
+
+func TestNormalizePageWithDefault(t *testing.T) {
+	page, perPage := NormalizePageWithDefault(0, 0, IssueDefaultPerPage)
+	if page != 1 || perPage != IssueDefaultPerPage {
+		t.Fatalf("expected 1/%d, got %d/%d", IssueDefaultPerPage, page, perPage)
+	}
+	if IssueDefaultPerPage != 7 {
+		t.Fatalf("expected issues default page size 7, got %d", IssueDefaultPerPage)
+	}
+	page, perPage = NormalizePageWithDefault(2, 0, IssueDefaultPerPage)
+	if page != 2 || perPage != IssueDefaultPerPage {
+		t.Fatalf("expected 2/%d, got %d/%d", IssueDefaultPerPage, page, perPage)
+	}
+	_, perPage = NormalizePageWithDefault(1, 500, IssueDefaultPerPage)
+	if perPage != 100 {
+		t.Fatalf("expected per_page clamped to 100, got %d", perPage)
+	}
+	page, perPage = NormalizePageWithDefault(3, 25, IssueDefaultPerPage)
+	if page != 3 || perPage != 25 {
+		t.Fatalf("expected explicit values preserved, got %d/%d", page, perPage)
 	}
 }
 

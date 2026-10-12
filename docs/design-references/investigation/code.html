@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="web_dashboard" name="shell-type"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+    @layer base {
+      html, body {
+        margin: 0;
+        padding: 0;
+        background-color: #080808;
+        color: #e5e5e5;
+      }
+      body {
+        overscroll-behavior: none;
+      }
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #080808;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #222222;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #333333;
+    }
+  </style>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            app: {
+              bg: "#080808",
+              surface: "#121212",
+              elevated: "#181818",
+              border: "#222222",
+              borderSubtle: "#1a1a1a",
+              text: "#ededed",
+              muted: "#888888",
+              faint: "#555555",
+              blue: "#2f81f7",
+              blueMuted: "rgba(47, 129, 247, 0.12)",
+              amber: "#d29922",
+              amberBg: "rgba(210, 153, 34, 0.10)",
+              amberBorder: "rgba(210, 153, 34, 0.3)"
+            }
+          },
+          fontFamily: {
+            sans: ["Geist", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "sans-serif"],
+            mono: ["JetBrains Mono", "SFMono-Regular", "Menlo", "monospace"]
+          }
+        }
+      }
+    };
+  </script>
+</head>
+<body class="bg-app-bg font-sans text-sm text-app-text antialiased selection:bg-[#2f81f7]/30 selection:text-white">
+<!-- Left Minimal Navigation Sidebar -->
+<aside class="fixed left-0 top-0 bottom-0 w-60 bg-[#0c0c0c] border-r border-app-border z-50 flex flex-col justify-between select-none">
+<div class="flex flex-col">
+<div class="h-14 px-4 flex items-center border-b border-app-border justify-between">
+<div class="flex items-center gap-2">
+<div class="w-5 h-5 rounded bg-white text-black flex items-center justify-center font-bold text-xs">
+            IR
+          </div>
+<span class="font-medium text-sm text-white tracking-tight">Issue Refiner</span>
+</div>
+<span class="font-mono text-[11px] text-app-faint">v1.2</span>
+</div>
+<div class="px-3 py-3">
+<div class="px-2 py-1.5 mb-1 flex items-center justify-between text-xs text-app-muted rounded bg-app-surface border border-app-border">
+<div class="flex items-center gap-2 truncate">
+<span class="material-symbols-outlined text-[14px] text-app-faint">domain</span>
+<span class="font-mono text-xs text-app-text truncate">acme-corp</span>
+</div>
+<span class="material-symbols-outlined text-[14px] text-app-faint">unfold_more</span>
+</div>
+</div>
+<div class="px-3 py-2">
+<div class="font-mono text-[10px] uppercase tracking-wider text-app-faint px-2 mb-1.5 font-medium">Workspace</div>
+<nav class="space-y-0.5">
+<a class="flex items-center gap-2.5 px-2.5 py-1.5 rounded text-app-muted hover:text-white hover:bg-app-surface transition-colors text-xs" href="#">
+<span class="material-symbols-outlined text-[16px]">grid_view</span>
+<span>Overview</span>
+</a>
+<a class="flex items-center gap-2.5 px-2.5 py-1.5 rounded bg-app-surface text-white border border-app-border font-medium text-xs" href="#">
+<span class="material-symbols-outlined text-[16px] text-app-blue">account_tree</span>
+<span>Repositories</span>
+</a>
+<a class="flex items-center gap-2.5 px-2.5 py-1.5 rounded text-app-muted hover:text-white hover:bg-app-surface transition-colors text-xs" href="#">
+<span class="material-symbols-outlined text-[16px]">troubleshoot</span>
+<span>Investigation Queue</span>
+</a>
+<a class="flex items-center gap-2.5 px-2.5 py-1.5 rounded text-app-muted hover:text-white hover:bg-app-surface transition-colors text-xs" href="#">
+<span class="material-symbols-outlined text-[16px]">tune</span>
+<span>Triage Rules</span>
+</a>
+</nav>
+</div>
+</div>
+<!-- Bottom User Strip -->
+<div class="p-3 border-t border-app-border bg-[#0c0c0c]">
+<div class="p-2 rounded bg-app-surface border border-app-border flex items-center justify-between mb-2">
+<div class="flex items-center gap-2 min-w-0">
+<div class="w-6 h-6 rounded bg-[#222222] text-xs font-mono text-white flex items-center justify-center font-medium">AL</div>
+<div class="min-w-0">
+<div class="text-xs font-medium text-white truncate">Alex Liang</div>
+<div class="text-[10px] font-mono text-app-faint truncate">Staff Eng</div>
+</div>
+</div>
+<div class="w-1.5 h-1.5 rounded-full bg-emerald-400"></div>
+</div>
+<button class="w-full flex items-center justify-center gap-1.5 py-1 text-xs text-app-muted hover:text-white transition-colors" type="button">
+<span class="material-symbols-outlined text-[14px]">logout</span>
+<span>Sign out</span>
+</button>
+</div>
+</aside>
+<!-- Main Viewport Wrap (Padded left 240px for sidebar) -->
+<div class="pl-60 min-h-screen bg-app-bg flex flex-col">
+<!-- Top Utility Bar -->
+<header class="h-14 border-b border-app-border bg-[#080808]/95 backdrop-blur sticky top-0 z-40 px-6 flex items-center justify-between">
+<!-- Breadcrumbs -->
+<nav class="flex items-center gap-2 text-xs font-mono text-app-muted">
+<a class="hover:text-white transition-colors" href="#">Repositories</a>
+<span class="text-app-faint">/</span>
+<a class="hover:text-white transition-colors" href="#">acme/payment-service</a>
+<span class="text-app-faint">/</span>
+<span class="text-white font-medium">#142</span>
+</nav>
+<!-- Right Utility Actions -->
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-1.5 text-xs font-mono text-app-faint border border-app-border px-2 py-1 rounded bg-[#0e0e0e]">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+<span>Synced 2m ago</span>
+</div>
+<div class="h-4 w-px bg-app-border"></div>
+<a class="text-xs text-app-muted hover:text-white transition-colors flex items-center gap-1" href="https://github.com" target="_blank">
+<span>GitHub</span>
+<span class="material-symbols-outlined text-[13px]">north_east</span>
+</a>
+</div>
+</header>
+<!-- Content Workspace: Two-Column Utilitarian Layout -->
+<div class="flex-1 flex min-h-[calc(100vh-3.5rem)] relative">
+<!-- MAIN READING REPORT COLUMN -->
+<main class="flex-1 min-w-[600px] p-8 xl:p-12 max-w-4xl">
+<div class="space-y-10">
+<!-- 1. ISSUE HEADER & TITLE -->
+<div class="space-y-4 pb-8 border-b border-app-border">
+<!-- Badges & Monospace identifier -->
+<div class="flex flex-wrap items-center gap-2.5">
+<span class="font-mono text-xs text-app-muted bg-app-surface px-1.5 py-0.5 rounded border border-app-border font-medium">#142</span>
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-medium text-app-amber bg-app-amberBg border border-app-amberBorder">
+<span class="w-1.5 h-1.5 rounded-full bg-app-amber"></span>
+                Needs Information
+              </span>
+<span class="text-app-faint text-xs font-mono">P1 · High Priority</span>
+</div>
+<!-- Natural Full Width Issue Title -->
+<h1 class="text-[26px] leading-[34px] font-semibold text-white tracking-tight break-words">
+              Retry logic causes duplicate payment attempts
+            </h1>
+<!-- Concise Metadata Line -->
+<div class="flex items-center gap-2 text-xs text-app-muted font-mono">
+<span>Investigated 18m ago</span>
+<span class="text-app-faint">·</span>
+<span>Anthropic claude-3-7-sonnet</span>
+<span class="text-app-faint">·</span>
+<span class="text-emerald-400/90">Completed in 24.2s</span>
+</div>
+<!-- Restrained Action Row -->
+<div class="pt-2 flex flex-wrap items-center gap-2.5">
+<button class="px-3.5 py-1.5 rounded text-xs font-medium bg-app-blue text-white hover:bg-blue-600 transition-colors flex items-center gap-1.5 shadow-sm" id="open-modal-btn" type="button">
+<span class="material-symbols-outlined text-[15px]">send</span>
+<span>Request missing information</span>
+</button>
+<button class="px-3 py-1.5 rounded text-xs font-medium bg-app-surface text-app-text hover:text-white hover:bg-app-elevated border border-app-border transition-colors flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[15px] text-app-muted">refresh</span>
+<span>Re-investigate</span>
+</button>
+<a class="px-3 py-1.5 rounded text-xs font-medium text-app-muted hover:text-white transition-colors flex items-center gap-1" href="https://github.com" target="_blank">
+<span>View on GitHub</span>
+<span class="text-[13px] leading-none">↗</span>
+</a>
+</div>
+</div>
+<!-- 2. READINESS SECTION -->
+<section class="space-y-3">
+<h2 class="text-sm font-semibold text-white tracking-tight">Readiness</h2>
+<div class="p-4 rounded bg-app-surface border border-app-border text-xs leading-relaxed space-y-1.5">
+<div class="font-medium text-app-text flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-app-amber"></span>
+<span>Refinement blocked — missing reproduction telemetry</span>
+</div>
+<p class="text-app-muted">
+                The investigation determined this issue lacks client idempotency key logs and gateway timeout sequencing required for safe patch generation.
+              </p>
+</div>
+</section>
+<!-- 3. MISSING INFORMATION CHECKLIST -->
+<section class="space-y-3">
+<div class="flex items-center justify-between">
+<h2 class="text-sm font-semibold text-white tracking-tight">Missing information</h2>
+<span class="text-xs font-mono text-app-faint">2 required items</span>
+</div>
+<div class="rounded border border-app-border divide-y divide-app-border bg-app-surface">
+<!-- Item 1 -->
+<div class="p-3.5 flex items-start gap-3 hover:bg-app-elevated transition-colors">
+<div class="mt-0.5 text-app-amber">
+<span class="material-symbols-outlined text-[16px]">info</span>
+</div>
+<div class="flex-1 min-w-0 space-y-1">
+<div class="text-xs text-app-text font-medium leading-snug">
+                    Exact HTTP response headers and idempotency key sent by client during initial retry (<code class="font-mono text-app-blue text-[11px] bg-black/40 px-1 py-0.5 rounded border border-app-border">tx_891e4</code>)
+                  </div>
+<div class="text-[11px] text-app-muted">
+                    Required to confirm whether token collision occurs at the ingress edge or proxy retry layer.
+                  </div>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="p-3.5 flex items-start gap-3 hover:bg-app-elevated transition-colors">
+<div class="mt-0.5 text-app-amber">
+<span class="material-symbols-outlined text-[16px]">info</span>
+</div>
+<div class="flex-1 min-w-0 space-y-1">
+<div class="text-xs text-app-text font-medium leading-snug">
+                    Network partition duration and gateway timeout sequencing relative to database commit
+                  </div>
+<div class="text-[11px] text-app-muted">
+                    Clarification whether payment gateway timeout occurred before or after DB commit in <span class="font-mono text-app-text">payment_worker.go:184</span>.
+                  </div>
+</div>
+</div>
+</div>
+</section>
+<!-- 4. INVESTIGATION HYPOTHESES -->
+<section class="space-y-3">
+<div class="flex items-center justify-between">
+<h2 class="text-sm font-semibold text-white tracking-tight">Investigation hypotheses</h2>
+<span class="text-xs font-mono text-app-faint">Ranked potential causes</span>
+</div>
+<div class="space-y-3">
+<!-- Hypothesis 1 -->
+<div class="p-4 rounded bg-app-surface border border-app-border space-y-3">
+<div class="flex items-start justify-between gap-3">
+<div class="space-y-1">
+<span class="font-mono text-[11px] text-app-muted uppercase tracking-wider font-medium">Rank 1</span>
+<h3 class="text-xs font-medium text-white leading-relaxed">
+                      Non-atomic database transaction around Stripe gateway dispatch causes race condition on network timeout
+                    </h3>
+</div>
+</div>
+<!-- Corroborating Evidence Pills -->
+<div class="flex flex-wrap items-center gap-2 pt-1">
+<button class="evidence-pill px-2 py-1 rounded text-xs font-mono text-app-blue hover:text-white bg-app-blueMuted border border-app-blue/20 hover:border-app-blue/40 transition-colors flex items-center gap-1" data-evidence="1" type="button">
+<span class="material-symbols-outlined text-[13px]">attach_file</span>
+<span>Evidence #1: Issue body</span>
+</button>
+<button class="evidence-pill px-2 py-1 rounded text-xs font-mono text-app-blue hover:text-white bg-app-blueMuted border border-app-blue/20 hover:border-app-blue/40 transition-colors flex items-center gap-1" data-evidence="2" type="button">
+<span class="material-symbols-outlined text-[13px]">attach_file</span>
+<span>Evidence #2: Comment by @m-chen</span>
+</button>
+</div>
+<!-- Collapsible plain reasoning summary -->
+<details class="text-xs pt-1 group">
+<summary class="cursor-pointer text-app-muted hover:text-app-text transition-colors flex items-center gap-1 select-none font-mono text-[11px]">
+<span class="material-symbols-outlined text-[14px] group-open:rotate-90 transition-transform">chevron_right</span>
+<span>Reasoning summary</span>
+</summary>
+<div class="mt-2 pl-4 border-l border-app-border text-app-muted text-xs leading-relaxed space-y-2 py-1">
+<p>
+                      Client timeout occurs before the transaction status updates from <code class="font-mono text-app-text text-[11px]">PENDING</code> to <code class="font-mono text-app-text text-[11px]">CAPTURED</code>. If the retry fires inside 150ms, both worker routines inspect the idempotency key as uncommitted, producing a concurrent dispatch.
+                    </p>
+</div>
+</details>
+</div>
+<!-- Hypothesis 2 -->
+<div class="p-4 rounded bg-app-surface border border-app-border space-y-3">
+<div class="space-y-1">
+<span class="font-mono text-[11px] text-app-muted uppercase tracking-wider font-medium">Rank 2</span>
+<h3 class="text-xs font-medium text-white leading-relaxed">
+                    Idempotency cache eviction TTL expires prior to asynchronous webhook delivery confirmation
+                  </h3>
+</div>
+<!-- Corroborating Evidence Pills -->
+<div class="flex flex-wrap items-center gap-2 pt-1">
+<button class="evidence-pill px-2 py-1 rounded text-xs font-mono text-app-blue hover:text-white bg-app-blueMuted border border-app-blue/20 hover:border-app-blue/40 transition-colors flex items-center gap-1" data-evidence="3" type="button">
+<span class="material-symbols-outlined text-[13px]">attach_file</span>
+<span>Evidence #3: Redis metrics</span>
+</button>
+</div>
+<!-- Collapsible plain reasoning summary -->
+<details class="text-xs pt-1 group">
+<summary class="cursor-pointer text-app-muted hover:text-app-text transition-colors flex items-center gap-1 select-none font-mono text-[11px]">
+<span class="material-symbols-outlined text-[14px] group-open:rotate-90 transition-transform">chevron_right</span>
+<span>Reasoning summary</span>
+</summary>
+<div class="mt-2 pl-4 border-l border-app-border text-app-muted text-xs leading-relaxed py-1">
+<p>
+                      Redis keys prefixed with <code class="font-mono text-app-text text-[11px]">idemp:*</code> have a configured TTL of 60 seconds, which falls below downstream webhook latency under P99 load conditions (92 seconds).
+                    </p>
+</div>
+</details>
+</div>
+</div>
+</section>
+<!-- 5. TECHNICAL SIGNALS (Plain Collapsed Disclosure) -->
+<section class="border-t border-app-border pt-6">
+<details class="group">
+<summary class="flex items-center justify-between cursor-pointer list-none select-none text-xs text-app-muted hover:text-white transition-colors">
+<div class="flex items-center gap-2">
+<span class="font-medium text-app-text">Technical signals</span>
+<span class="font-mono text-[11px] text-app-faint">(2 detected)</span>
+</div>
+<div class="flex items-center gap-1 font-mono text-[11px] text-app-faint">
+<span>Toggle references</span>
+<span class="material-symbols-outlined text-[14px] group-open:rotate-180 transition-transform">expand_more</span>
+</div>
+</summary>
+<div class="mt-3 space-y-2 pl-1 font-mono text-xs">
+<div class="p-2.5 rounded bg-app-surface border border-app-border flex items-center justify-between">
+<span class="text-app-text">workers/stripe_dispatcher.go:184</span>
+<span class="text-app-faint text-[11px]">Capture dispatch</span>
+</div>
+<div class="p-2.5 rounded bg-app-surface border border-app-border flex items-center justify-between">
+<span class="text-app-text">payment_worker.go:184</span>
+<span class="text-app-faint text-[11px]">Timeout handling</span>
+</div>
+</div>
+</details>
+</section><section class="border-t border-app-border pt-6 space-y-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<h2 class="text-sm font-semibold text-white tracking-tight">Investigation history</h2>
+<span class="text-xs font-mono text-app-faint">4 runs for #142</span>
+</div>
+<span class="text-[11px] font-mono text-app-faint">Chronological · Newest first</span>
+</div>
+<div class="p-3 rounded bg-app-surface/60 border border-app-border text-[11px] font-mono text-app-muted flex items-center justify-between">
+<span>Viewing an older run will display historical findings captured at that run's execution time.</span>
+<span class="text-app-faint">Snapshots preserved</span>
+</div>
+<div class="rounded border border-app-border divide-y divide-app-border bg-app-surface text-xs font-mono">
+<!-- Run 1 (Current) -->
+<div class="p-3 flex items-center justify-between bg-white/[0.02]">
+<div class="flex items-center gap-3 min-w-0">
+<div class="w-1.5 h-1.5 rounded-full bg-app-blue flex-shrink-0"></div>
+<div class="flex items-center gap-2.5 truncate">
+<span class="text-white font-medium">18m ago</span>
+<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] text-app-amber bg-app-amberBg border border-app-amberBorder leading-none">
+            NEEDS_INFORMATION
+          </span>
+<span class="text-app-muted text-[11px] truncate">Anthropic · Claude 3.7 Sonnet</span>
+</div>
+</div>
+<div class="flex items-center gap-2 flex-shrink-0">
+<span class="text-[11px] text-app-blue font-medium px-2 py-0.5 rounded bg-app-blueMuted border border-app-blue/20">Current run</span>
+</div>
+</div>
+<!-- Run 2 -->
+<div class="p-3 flex items-center justify-between hover:bg-app-elevated transition-colors">
+<div class="flex items-center gap-3 min-w-0">
+<div class="w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0"></div>
+<div class="flex items-center gap-2.5 truncate">
+<span class="text-app-text">2 hours ago</span>
+<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] text-emerald-400 bg-emerald-400/10 border border-emerald-400/20 leading-none">
+            READY
+          </span>
+<span class="text-app-muted text-[11px] truncate">OpenAI · o3-mini</span>
+</div>
+</div>
+<div class="flex items-center gap-2 flex-shrink-0">
+<button class="text-app-muted hover:text-white transition-colors text-[11px] flex items-center gap-1 px-2 py-0.5 rounded hover:bg-app-surface border border-transparent hover:border-app-border" type="button">
+<span>View result</span>
+<span class="text-[10px]">→</span>
+</button>
+</div>
+</div>
+<!-- Run 3 -->
+<div class="p-3 flex items-center justify-between hover:bg-app-elevated transition-colors">
+<div class="flex items-center gap-3 min-w-0">
+<div class="w-1.5 h-1.5 rounded-full bg-app-amber flex-shrink-0"></div>
+<div class="flex items-center gap-2.5 truncate">
+<span class="text-app-text">Yesterday</span>
+<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] text-app-amber bg-app-amberBg border border-app-amberBorder leading-none">
+            NEEDS_INFORMATION
+          </span>
+<span class="text-app-muted text-[11px] truncate">Anthropic · Claude 3.5 Sonnet</span>
+</div>
+</div>
+<div class="flex items-center gap-2 flex-shrink-0">
+<button class="text-app-muted hover:text-white transition-colors text-[11px] flex items-center gap-1 px-2 py-0.5 rounded hover:bg-app-surface border border-transparent hover:border-app-border" type="button">
+<span>View result</span>
+<span class="text-[10px]">→</span>
+</button>
+</div>
+</div>
+<!-- Run 4 -->
+<div class="p-3 flex items-center justify-between hover:bg-app-elevated transition-colors">
+<div class="flex items-center gap-3 min-w-0">
+<div class="w-1.5 h-1.5 rounded-full bg-red-400 flex-shrink-0"></div>
+<div class="flex items-center gap-2.5 truncate">
+<span class="text-app-text">Yesterday</span>
+<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] text-red-400 bg-red-400/10 border border-red-400/20 leading-none">
+            JOB_FAILED
+          </span>
+<span class="text-app-muted text-[11px] truncate">Anthropic · Claude 3.7 Sonnet</span>
+</div>
+</div>
+<div class="flex items-center gap-2 flex-shrink-0">
+<button class="text-app-muted hover:text-white transition-colors text-[11px] flex items-center gap-1 px-2 py-0.5 rounded hover:bg-app-surface border border-transparent hover:border-app-border" type="button">
+<span>View result</span>
+<span class="text-[10px]">→</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- 6. RIGHT-SIDE FIXED-WIDTH EVIDENCE DRAWER (Utilitarian Minimalist, 360px) -->
+<aside class="w-[360px] flex-shrink-0 bg-[#111111] border-l border-app-border sticky top-14 h-[calc(100vh-3.5rem)] flex flex-col justify-between overflow-y-auto" id="evidence-drawer">
+<div class="p-6 space-y-6">
+<!-- Drawer Header -->
+<div class="flex items-center justify-between pb-4 border-b border-app-border">
+<h3 class="font-mono text-xs uppercase tracking-wider font-semibold text-white" id="drawer-title">
+              Evidence #1
+            </h3>
+<button aria-label="Close evidence drawer" class="text-app-muted hover:text-white transition-colors p-1 rounded" id="close-drawer-btn" type="button">
+<span class="material-symbols-outlined text-[16px]">close</span>
+</button>
+</div>
+<!-- Metadata -->
+<div class="space-y-1.5 text-xs font-mono text-app-muted">
+<div class="flex flex-wrap items-center gap-2" id="drawer-meta">
+<span>Issue description</span>
+<span class="text-app-faint">·</span>
+<span class="text-white">@m-chen</span>
+<span class="text-app-faint">·</span>
+<span class="text-app-faint">3 hours ago</span>
+</div>
+<div>
+<a class="text-app-blue hover:underline inline-flex items-center gap-1 text-[11px]" href="https://github.com" target="_blank">
+<span>Open on GitHub</span>
+<span>↗</span>
+</a>
+</div>
+</div>
+<!-- Exact Supporting Excerpt -->
+<div class="space-y-2">
+<div class="text-[11px] font-mono text-app-faint uppercase tracking-wider">Exact Supporting Excerpt</div>
+<div class="p-3.5 rounded bg-app-bg border border-app-border text-xs text-app-text leading-relaxed font-sans border-l-2 border-l-app-blue">
+<blockquote class="italic text-app-text/90" id="drawer-quote">
+                “When the downstream bank returns a 504 Gateway Timeout on /v1/charges, our retry interceptor dispatches a secondary POST charge within 150ms without verifying if the initial charge was pending in Redis.”
+              </blockquote>
+</div>
+</div>
+<!-- AI Interpretation -->
+<div class="p-3.5 rounded bg-app-surface border border-app-border space-y-1.5">
+<div class="font-mono text-[11px] text-app-muted font-medium">Interpretation</div>
+<p class="text-xs text-app-muted leading-relaxed" id="drawer-interpretation">
+              Directly supports Hypothesis #1 regarding client retry timing violating the idempotency backoff protocol.
+            </p>
+</div>
+</div>
+<!-- Drawer Footer -->
+<div class="p-4 border-t border-app-border bg-[#0e0e0e] flex items-center justify-between text-xs">
+<span class="font-mono text-[11px] text-app-faint">Linked to Hypothesis #1</span>
+<button class="px-2.5 py-1 rounded bg-app-surface hover:bg-app-elevated border border-app-border text-app-text text-xs transition-colors flex items-center gap-1" id="quote-drawer-btn" type="button">
+<span>Insert citation</span>
+</button>
+</div>
+</aside>
+</div>
+</div>
+<!-- MODAL: Request Missing Information -->
+<div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm hidden" id="request-modal">
+<div class="w-full max-w-lg bg-[#111111] rounded border border-app-border shadow-2xl flex flex-col overflow-hidden">
+<!-- Modal Header -->
+<div class="px-5 py-3.5 border-b border-app-border flex items-center justify-between bg-app-surface">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-app-blue">send</span>
+<h3 class="text-xs font-semibold text-white">Request Missing Information</h3>
+</div>
+<button aria-label="Close modal" class="text-app-muted hover:text-white transition-colors" id="close-modal-btn" type="button">
+<span class="material-symbols-outlined text-[16px]">close</span>
+</button>
+</div>
+<!-- Modal Body -->
+<div class="p-5 space-y-4">
+<div class="text-xs text-app-muted flex items-center justify-between border-b border-app-border pb-3">
+<span>Replying to <span class="text-white font-mono">@m-chen</span> on issue <span class="text-white font-mono">#142</span></span>
+<span class="text-[11px] font-mono text-app-amber">Blocking safe fix</span>
+</div>
+<div class="space-y-1.5">
+<label class="text-[11px] font-mono text-app-faint uppercase tracking-wider block" for="github-comment-draft">
+            Inquiry draft
+          </label>
+<textarea class="w-full p-3 bg-app-bg text-app-text text-xs font-mono rounded border border-app-border focus:outline-none focus:border-app-blue transition-colors resize-none leading-relaxed" id="github-comment-draft" rows="5">@m-chen Thanks for reporting this. Before we can reproduce and patch this retry issue, could you provide: 1) The exact idempotency-key header sent in the failed request (tx_891e4), and 2) Whether the 504 timeout originated from the ingress gateway or Stripe's API directly?</textarea>
+</div>
+<div class="flex items-center gap-2 text-xs text-app-muted select-none">
+<input checked="" class="rounded border-app-border bg-app-surface text-app-blue focus:ring-0 w-3.5 h-3.5" id="attach-label" type="checkbox"/>
+<label class="cursor-pointer" for="attach-label">Apply <code class="font-mono text-[11px] text-app-amber">needs-information</code> label to issue</label>
+</div>
+</div>
+<!-- Modal Footer -->
+<div class="px-5 py-3.5 border-t border-app-border bg-app-surface flex items-center justify-end gap-2.5">
+<button class="px-3 py-1.5 rounded text-xs text-app-muted hover:text-white transition-colors" id="cancel-modal-btn" type="button">
+          Cancel
+        </button>
+<button class="px-3.5 py-1.5 rounded text-xs font-medium bg-app-blue text-white hover:bg-blue-600 transition-colors flex items-center gap-1.5" id="post-comment-btn" type="button">
+<span>Submit comment</span>
+</button>
+</div>
+</div>
+</div>
+<script>
+    (function() {
+      // Evidence registry for drawer interactions
+      const evidenceData = {
+        "1": {
+          title: "Evidence #1",
+          meta: "Issue description · @m-chen · 3 hours ago",
+          quote: "When the downstream bank returns a 504 Gateway Timeout on /v1/charges, our retry interceptor dispatches a secondary POST charge within 150ms without verifying if the initial charge was pending in Redis.",
+          interpretation: "Directly supports Hypothesis #1 regarding client retry timing violating the idempotency backoff protocol."
+        },
+        "2": {
+          title: "Evidence #2",
+          meta: "Comment · @m-chen · 2 hours ago",
+          quote: "Checking our edge proxy traces, multiple POST payloads carry identical x-idempotency-key tokens dispatched within 120ms of the initial gateway drop.",
+          interpretation: "Corroborates the sub-second retry dispatch cadence occurring before distributed locks finish their state transition."
+        },
+        "3": {
+          title: "Evidence #3",
+          meta: "Telemetry · Redis cluster metrics · 14:00 UTC",
+          quote: "Memory pressure triggered early key eviction on namespace idemp:* where TTL threshold was capped at default 60 seconds.",
+          interpretation: "Provides plausible backing for Hypothesis #2 if downstream callback duration routinely surpasses the 60-second window."
+        }
+      };
+
+      const drawer = document.getElementById('evidence-drawer');
+      const drawerTitle = document.getElementById('drawer-title');
+      const drawerMeta = document.getElementById('drawer-meta');
+      const drawerQuote = document.getElementById('drawer-quote');
+      const drawerInterpretation = document.getElementById('drawer-interpretation');
+      const closeDrawerBtn = document.getElementById('close-drawer-btn');
+      const evidencePills = document.querySelectorAll('.evidence-pill');
+
+      evidencePills.forEach(pill => {
+        pill.addEventListener('click', () => {
+          const id = pill.getAttribute('data-evidence');
+          if (evidenceData[id]) {
+            drawer.style.display = 'flex';
+            drawerTitle.textContent = evidenceData[id].title;
+            drawerMeta.innerHTML = `<span>${evidenceData[id].meta.split('·')[0]}</span><span class="text-app-faint">·</span><span class="text-white">${evidenceData[id].meta.split('·')[1]}</span><span class="text-app-faint">·</span><span class="text-app-faint">${evidenceData[id].meta.split('·')[2]}</span>`;
+            drawerQuote.textContent = `“${evidenceData[id].quote}”`;
+            drawerInterpretation.textContent = evidenceData[id].interpretation;
+          }
+        });
+      });
+
+      if (closeDrawerBtn) {
+        closeDrawerBtn.addEventListener('click', () => {
+          drawer.style.display = drawer.style.display === 'none' ? 'flex' : 'none';
+        });
+      }
+
+      // Modal handling
+      const modal = document.getElementById('request-modal');
+      const openModalBtn = document.getElementById('open-modal-btn');
+      const closeModalBtn = document.getElementById('close-modal-btn');
+      const cancelModalBtn = document.getElementById('cancel-modal-btn');
+      const postCommentBtn = document.getElementById('post-comment-btn');
+      const quoteDrawerBtn = document.getElementById('quote-drawer-btn');
+      const textarea = document.getElementById('github-comment-draft');
+
+      function openModal() {
+        if (modal) modal.classList.remove('hidden');
+      }
+      function closeModal() {
+        if (modal) modal.classList.add('hidden');
+      }
+
+      if (openModalBtn) openModalBtn.addEventListener('click', openModal);
+      if (closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
+      if (cancelModalBtn) cancelModalBtn.addEventListener('click', closeModal);
+
+      if (postCommentBtn) {
+        postCommentBtn.addEventListener('click', function() {
+          const orig = postCommentBtn.innerHTML;
+          postCommentBtn.innerHTML = '<span>Posting...</span>';
+          setTimeout(() => {
+            postCommentBtn.innerHTML = '<span>Posted ✓</span>';
+            setTimeout(() => {
+              closeModal();
+              postCommentBtn.innerHTML = orig;
+            }, 500);
+          }, 600);
+        });
+      }
+
+      if (quoteDrawerBtn) {
+        quoteDrawerBtn.addEventListener('click', () => {
+          openModal();
+          if (textarea && drawerQuote) {
+            textarea.value += `\n\n> ${drawerQuote.textContent.trim()}`;
+          }
+        });
+      }
+    })();
+  </script>
+</body></html>

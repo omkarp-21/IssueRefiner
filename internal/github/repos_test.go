@@ -63,9 +63,12 @@ func TestListIssuesFiltersPullRequests(t *testing.T) {
 	]`, http.StatusOK, nil)
 	defer server.Close()
 	client := NewClient(server.URL)
-	issues, err := client.ListIssues(context.Background(), "token", "o", "r", "open", 1, 30)
+	issues, hasMore, err := client.ListIssues(context.Background(), "token", "o", "r", "open", 1, 7, "")
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
+	}
+	if hasMore {
+		t.Fatalf("expected hasMore=false on exhausted results, got true")
 	}
 	if len(issues) != 1 {
 		t.Fatalf("expected pull requests filtered, got %+v", issues)

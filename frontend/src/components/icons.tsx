@@ -88,6 +88,14 @@ export function LogoutIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+export function CloseIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Base {...props}>
+      <path d="M6 6l12 12M18 6L6 18" />
+    </Base>
+  );
+}
+
 export function ArrowIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <Base {...props}>

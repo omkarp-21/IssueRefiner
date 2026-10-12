@@ -25,9 +25,13 @@ type importRequest struct {
 }
 
 func parsePagination(c *gin.Context) (int, int) {
+	return parsePaginationWithDefault(c, 30)
+}
+
+func parsePaginationWithDefault(c *gin.Context, def int) (int, int) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
-	perPage, _ := strconv.Atoi(c.DefaultQuery("per_page", "30"))
-	return NormalizePage(page, perPage)
+	perPage, _ := strconv.Atoi(c.DefaultQuery("per_page", strconv.Itoa(def)))
+	return NormalizePageWithDefault(page, perPage, def)
 }
 
 func githubStatus(err error) int {
@@ -159,8 +163,9 @@ func (repositoryHandler *RepositoryHandler) ListIssues(c *gin.Context) {
 		return
 	}
 	state := c.DefaultQuery("state", "open")
-	page, perPage := parsePagination(c)
-	issues, err := repositoryHandler.RepositoryService.ListIssues(c.Request.Context(), organization.ID, user.ID, id, state, page, perPage)
+	query := c.Query("q")
+	page, perPage := parsePaginationWithDefault(c, IssueDefaultPerPage)
+	issues, hasMore, err := repositoryHandler.RepositoryService.ListIssues(c.Request.Context(), organization.ID, user.ID, id, state, page, perPage, query)
 	if err != nil {
 		switch {
 		case errors.Is(err, ErrInvalidRepo):
@@ -178,7 +183,7 @@ func (repositoryHandler *RepositoryHandler) ListIssues(c *gin.Context) {
 		}
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"issues": issues, "page": page, "per_page": perPage})
+	c.JSON(http.StatusOK, gin.H{"issues": issues, "page": page, "per_page": perPage, "has_more": hasMore})
 }
 
 func (repositoryHandler *RepositoryHandler) RegisterRoutes(router *gin.Engine, requireAuth gin.HandlerFunc) {

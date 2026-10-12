@@ -24,7 +24,7 @@ type GitHubClient interface {
 	ListIssueComments(ctx context.Context, token string, owner string, repo string, issueNumber int) ([]github.IssueComment, error)
 	CreateIssueComment(ctx context.Context, token string, owner string, repo string, issueNumber int, body string) (*github.CreatedIssueComment, error)
 	ListContributors(ctx context.Context, token string, owner string, repo string, page int, perPage int) ([]github.Contributor, error)
-	ListIssues(ctx context.Context, token string, owner string, repo string, state string, page int, perPage int) ([]github.Issue, error)
+	ListIssues(ctx context.Context, token string, owner string, repo string, state string, page int, perPage int, query string) ([]github.Issue, bool, error)
 }
 
 type TokenStore interface {
@@ -53,17 +53,28 @@ func NewRepositoryService(repositoryRepository *RepositoryRepository, githubClie
 }
 
 func NormalizePage(page int, perPage int) (int, int) {
+	return NormalizePageWithDefault(page, perPage, 30)
+}
+
+// NormalizePageWithDefault clamps page to >= 1 and perPage to 1..100,
+// substituting def when perPage is missing or non-positive. The issues
+// listing uses IssueDefaultPerPage; other listings keep their own default.
+func NormalizePageWithDefault(page int, perPage int, def int) (int, int) {
 	if page < 1 {
 		page = 1
 	}
 	if perPage < 1 {
-		perPage = 30
+		perPage = def
 	}
 	if perPage > 100 {
 		perPage = 100
 	}
 	return page, perPage
 }
+
+// IssueDefaultPerPage is the issues-listing page size: the collector fills
+// each page with this many real issues, skipping pull requests.
+const IssueDefaultPerPage = 7
 
 func ValidateIssueState(state string) error {
 	if state != "open" && state != "closed" && state != "all" {
@@ -130,24 +141,24 @@ func (repositoryService *RepositoryService) ListContributors(ctx context.Context
 	return contributors, nil
 }
 
-func (repositoryService *RepositoryService) ListIssues(ctx context.Context, organizationID uuid.UUID, userID uuid.UUID, id uuid.UUID, state string, page int, perPage int) ([]github.Issue, error) {
+func (repositoryService *RepositoryService) ListIssues(ctx context.Context, organizationID uuid.UUID, userID uuid.UUID, id uuid.UUID, state string, page int, perPage int, query string) ([]github.Issue, bool, error) {
 	if err := ValidateIssueState(state); err != nil {
-		return nil, err
+		return nil, false, err
 	}
 	repository, err := repositoryService.GetRepo(ctx, organizationID, id)
 	if err != nil {
-		return nil, err
+		return nil, false, err
 	}
 	token, err := userToken(repositoryService.Tokens, ctx, userID)
 	if err != nil {
-		return nil, err
+		return nil, false, err
 	}
-	page, perPage = NormalizePage(page, perPage)
-	issues, err := repositoryService.GitHub.ListIssues(ctx, token, repository.Owner, repository.Name, state, page, perPage)
+	page, perPage = NormalizePageWithDefault(page, perPage, IssueDefaultPerPage)
+	issues, hasMore, err := repositoryService.GitHub.ListIssues(ctx, token, repository.Owner, repository.Name, state, page, perPage, query)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %w", ErrGitHubUpstream, err)
+		return nil, false, fmt.Errorf("%w: %w", ErrGitHubUpstream, err)
 	}
-	return issues, nil
+	return issues, hasMore, nil
 }
 
 func (repositoryService *RepositoryService) GetIssue(ctx context.Context, organizationID uuid.UUID, userID uuid.UUID, id uuid.UUID, issueNumber int) (*github.Issue, error) {
